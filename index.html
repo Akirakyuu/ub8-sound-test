@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>优游国际 · 音效测试版</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;background:linear-gradient(180deg,#E8F2FC,#D4E8F7);min-height:100vh;color:#1a2942;padding-bottom:76px}
+.sp{position:fixed;right:0;top:0;bottom:0;width:336px;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.1);z-index:1200;overflow-y:auto;transform:translateX(100%);transition:transform .28s}
+.sp.open{transform:translateX(0)}
+.pbtn{position:fixed;right:20px;bottom:80px;z-index:1201;width:52px;height:52px;border-radius:50%;background:#1E88E5;border:none;color:#fff;font-size:21px;cursor:pointer;box-shadow:0 4px 16px rgba(30,136,229,.4);transition:right .28s}
+.pbtn.sh{right:356px}
+.ph{padding:19px 20px 15px;border-bottom:1px solid #eef2f7;display:flex;align-items:center;justify-content:space-between}
+.ph h2{font-size:15.5px;font-weight:600}
+.pc{background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8}
+.ps{padding:17px 20px;border-bottom:1px solid #f1f5f9}
+.ps h3{font-size:11.5px;font-weight:600;color:#64748b;margin-bottom:11px}
+.ur{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:9px 10px;background:#f8fafc;border-radius:6px;border:1px solid #e8eef5}
+.ur label{font-size:11.5px;color:#475569;min-width:58px;font-weight:500}
+.ur input[type=file]{display:none}
+.ub{font-size:11px;padding:4px 9px;border:1px solid #cbd5e1;background:#fff;border-radius:4px;cursor:pointer;color:#475569;white-space:nowrap}
+.ub:hover{border-color:#1E88E5;color:#1E88E5}
+.fn{font-size:10.5px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fn.ok{color:#16a34a}
+.pl{font-size:10.5px;padding:4px 7px;border:none;background:#eff6ff;color:#1E88E5;border-radius:4px;cursor:pointer}
+.bl{display:flex;flex-direction:column;gap:6px}
+.bi{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f8fafc;border:1px solid #e8eef5;border-radius:6px;cursor:pointer;font-size:11.5px}
+.bi:hover{border-color:#93c5fd;background:#f0f7ff}
+.bi.pg{border-color:#1E88E5;background:#e3f2fd}
+.bi .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bi .ic{color:#1E88E5;font-size:12.5px}
+.bi .dl{color:#cbd5e1;font-size:15px;padding:0 3px}
+.bi .dl:hover{color:#ef4444}
+.vr{display:flex;align-items:center;gap:9px;margin-top:11px}
+.vr label{font-size:11px;color:#64748b;min-width:40px}
+.vr input[type=range]{flex:1;accent-color:#1E88E5}
+.vv{font-size:11px;color:#1E88E5;min-width:32px;text-align:right;font-weight:600}
+.et{font-size:11px;color:#94a3b8;text-align:center;padding:13px 0}
+.mu{display:block;width:100%;padding:9px;text-align:center;border:1.5px dashed #cbd5e1;border-radius:6px;cursor:pointer;font-size:11.5px;color:#64748b;background:#fafcfe}
+.mu:hover{border-color:#1E88E5;color:#1E88E5}
+.cb{width:100%;margin-top:11px;padding:8px;background:#fff;border:1px solid #fecaca;color:#dc2626;border-radius:5px;font-size:11px;cursor:pointer}
+.slotbox{margin-bottom:8px;border:1px solid #e8eef5;border-radius:6px;overflow:hidden;background:#f8fafc}
+.slotbox.open{border-color:#93c5fd;background:#fff}
+.slothd{display:flex;align-items:center;gap:8px;padding:10px 11px;cursor:pointer;transition:background .14s}
+.slothd:hover{background:#f0f7ff}
+.slotbox.open .slothd{background:#eff6ff;border-bottom:1px solid #dbeafe}
+.slotn{font-size:12px;color:#334155;font-weight:600;min-width:48px}
+.slotv{flex:1;font-size:10.5px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slotv.has{color:#16a34a}
+.slotar{font-size:9px;color:#94a3b8;flex-shrink:0}
+.slist{max-height:220px;overflow-y:auto;padding:5px}
+.sopt{display:flex;align-items:center;gap:7px;padding:8px 9px;border-radius:5px;font-size:11.5px;cursor:pointer;transition:background .12s}
+.sopt:hover{background:#f0f7ff}
+.sopt.cursel{background:#e3f2fd}
+.sopt.cursel .sn{color:#1565C0;font-weight:600}
+.sply{color:#1E88E5;font-size:11px;flex-shrink:0;width:14px;text-align:center}
+.sply:hover{color:#0D47A1}
+.sn{flex:1;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sdel{color:#cbd5e1;font-size:15px;padding:0 2px;flex-shrink:0;line-height:1}
+.sdel:hover{color:#ef4444}
+.sempty{font-size:11px;color:#94a3b8;text-align:center;padding:16px 0}
+.cnt{font-size:9px;color:#1E88E5;background:#e3f2fd;padding:2px 6px;border-radius:9px;flex-shrink:0;font-weight:600}
+.addbtn{display:block;margin:6px 4px 3px;padding:8px;text-align:center;border:1.5px dashed #cbd5e1;border-radius:5px;cursor:pointer;font-size:11px;color:#64748b;background:#fafcfe}
+.addbtn:hover{border-color:#1E88E5;color:#1E88E5;background:#f0f7ff}
+.addbtn input{display:none}
+.srcbadge{font-size:9px;padding:2px 7px;border-radius:9px;background:#e3f2fd;color:#1565C0;font-weight:600}
+.srcbadge.err{background:#fee2e2;color:#dc2626}
+.srcbadge.ok{background:#dcfce7;color:#16a34a}
+.cloudtag{font-size:8.5px;color:#1565C0;background:#e3f2fd;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.localtag{font-size:8.5px;color:#92400e;background:#fef3c7;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.nav{background:#fff;height:60px;display:flex;align-items:center;padding:0 32px;gap:26px;box-shadow:0 1px 6px rgba(0,0,0,.05);position:sticky;top:0;z-index:99}
+.lg{display:flex;align-items:center;gap:8px;cursor:pointer}
+.lb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2196F3,#1565C0);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center}
+.lt .cn{font-size:15.5px;font-weight:700;color:#1565C0;line-height:1.2}
+.lt .en{font-size:7px;color:#90a4ae;letter-spacing:2.5px}
+.nm2{display:flex;gap:22px;flex:1}
+.nm2 a{font-size:13.5px;color:#455a64;cursor:pointer;padding:4px 0;position:relative}
+.nm2 a.on{color:#1E88E5;font-weight:600}
+.nm2 a.on::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#1E88E5;border-radius:2px}
+.bln{background:#1E88E5;color:#fff;border:none;padding:7px 16px;border-radius:4px;font-size:12.5px;cursor:pointer}
+.pg2{display:none;padding:24px 32px}
+.pg2.on{display:block}
+.wrap{max-width:1140px;margin:0 auto}
+.ban{height:236px;border-radius:10px;overflow:hidden;position:relative;box-shadow:0 6px 24px rgba(0,0,0,.12);margin-bottom:22px;cursor:pointer}
+.bsl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s}
+.bsl.act{opacity:1}
+.bt{text-align:center;color:#fff}
+.bt .t1{font-size:38px;font-weight:900;letter-spacing:3px;text-shadow:0 3px 8px rgba(0,0,0,.3)}
+.bt .t2{font-size:30px;font-weight:900;color:#FFD54F;letter-spacing:5px;text-shadow:0 3px 8px rgba(0,0,0,.3);margin-top:2px}
+.bt .t3{font-size:13px;margin-top:11px;letter-spacing:3px;opacity:.9}
+.bar{position:absolute;top:50%;transform:translateY(-50%);width:33px;height:33px;border-radius:50%;background:rgba(255,255,255,.25);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:3}
+.bar.l{left:14px}.bar.r{right:14px}
+.bdots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+.bdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer}
+.bdot.act{background:#fff;width:20px;border-radius:4px}
+.lw{display:flex;gap:20px}
+.lm{flex:1}
+.tr2{display:flex;gap:19px;align-items:center;margin-bottom:14px}
+.hb{width:29px;height:29px;border-radius:50%;background:#1E88E5;color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tr2 a{font-size:13.5px;color:#546e7a;cursor:pointer}
+.tr2 a.on{color:#1E88E5;font-weight:600}
+.gg2{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.gt{height:92px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;text-align:center;position:relative;overflow:hidden;padding:8px;transition:transform .16s,box-shadow .16s}
+.gt:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.16)}
+.gt .tg{position:absolute;top:0;left:0;font-size:8.5px;font-weight:700;padding:2px 12px;transform:rotate(-45deg) translate(-14px,-2px);width:58px;text-align:center}
+.tg.h{background:#E53935}.tg.n{background:#43A047}
+.c1{background:linear-gradient(135deg,#7E57C2,#5E35B1)}.c2{background:linear-gradient(135deg,#AB47BC,#7B1FA2)}
+.c3{background:linear-gradient(135deg,#42A5F5,#1976D2)}.c4{background:linear-gradient(135deg,#66BB6A,#388E3C)}
+.c5{background:linear-gradient(135deg,#26A69A,#00796B)}.c6{background:linear-gradient(135deg,#EC407A,#C2185B)}
+.c7{background:linear-gradient(135deg,#5C6BC0,#3949AB)}.c8{background:linear-gradient(135deg,#29B6F6,#0288D1)}
+.c9{background:linear-gradient(135deg,#9CCC65,#689F38)}.c10{background:linear-gradient(135deg,#26A69A,#00695C)}
+.nb{width:300px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.06);height:fit-content;padding-bottom:10px}
+.nt{display:flex;border-bottom:1px solid #eceff1}
+.nt div{flex:1;text-align:center;padding:13px 0;font-size:12.5px;color:#78909c;cursor:pointer}
+.nt div.on{color:#1E88E5;font-weight:600;border-bottom:2px solid #1E88E5}
+.ni{display:flex;justify-content:space-between;padding:9px 15px;font-size:11.5px;color:#546e7a;cursor:pointer}
+.ni:hover{background:#f5f9fc}
+.ni .tx{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ni .dt{color:#b0bec5;font-size:10.5px;margin-left:9px}
+.more{text-align:center;font-size:11.5px;color:#1E88E5;padding:9px 0 4px;cursor:pointer}
+.ph2{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.bk{background:#fff;border:1px solid #cfd8dc;color:#546e7a;padding:6px 13px;border-radius:4px;font-size:12px;cursor:pointer}
+.bk:hover{border-color:#1E88E5;color:#1E88E5}
+.ph2 h1{font-size:18px;font-weight:600;color:#1565C0}
+.bw{display:flex;gap:18px}
+.bfl{flex:1;background:#fff;border-radius:8px;padding:17px 19px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.bh{display:flex;align-items:center;gap:12px;margin-bottom:15px}
+.blogo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#7E57C2,#5E35B1);color:#fff;font-size:10px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;line-height:1.3}
+.btt{font-size:15px;font-weight:600;color:#1565C0}
+.bis{font-size:10.5px;color:#90a4ae;margin-top:3px}
+.btm{font-size:25px;font-weight:700;color:#F4511E;font-variant-numeric:tabular-nums;margin-left:auto;margin-right:12px}
+.msw{display:flex;border:1px solid #1E88E5;border-radius:4px;overflow:hidden}
+.msw div{padding:6px 13px;font-size:11.5px;cursor:pointer;color:#1E88E5}
+.msw div.on{background:#1E88E5;color:#fff}
+.pt2{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.pt2 div{padding:5px 13px;font-size:12px;color:#546e7a;border-radius:4px;cursor:pointer}
+.pt2 div:hover{background:#f0f7ff}
+.pt2 div.on{background:#1E88E5;color:#fff;font-weight:500}
+.nr{border-top:1px solid #eceff1;padding-top:14px}
+.nrow{display:flex;align-items:center;gap:5px;margin-bottom:14px}
+.rl{width:42px;font-size:12px;color:#37474f;font-weight:500;background:#eceff1;padding:5px 0;border-radius:4px;text-align:center}
+.nbl{width:40px;text-align:center;cursor:pointer;padding:4px 0;border-radius:4px}
+.nbl:hover{background:#f0f7ff}
+.nbl.sel{background:#1E88E5}
+.nbl.sel .n{color:#fff}.nbl.sel .c{color:rgba(255,255,255,.8)}
+.nbl .n{font-size:16px;color:#37474f;font-weight:500}
+.nbl .c{font-size:9.5px;color:#90a4ae;margin-top:1px}
+.nbl.ht .c{color:#F4511E}
+.qb{display:flex;gap:3px;margin-left:8px}
+.qb span{font-size:10.5px;color:#607d8b;cursor:pointer;padding:3px 5px;border-radius:3px}
+.qb span:hover{background:#eceff1;color:#1E88E5}
+.bf{border-top:1px solid #eceff1;padding-top:14px;display:flex;align-items:center;gap:17px}
+.mg{display:flex;align-items:center;gap:5px}
+.mg .lbl{font-size:11.5px;color:#607d8b;margin-right:3px}
+.mg span{width:25px;height:25px;border-radius:50%;font-size:11.5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#546e7a}
+.mg span.on{background:#1E88E5;color:#fff}
+.mtg{display:flex;align-items:center}
+.mtg button{width:24px;height:24px;border:1px solid #cfd8dc;background:#fff;cursor:pointer;color:#607d8b;font-size:13px}
+.mtg input{width:42px;height:24px;border:1px solid #cfd8dc;border-left:none;border-right:none;text-align:center;font-size:12.5px}
+.mtg .u{font-size:11.5px;color:#607d8b;margin-left:5px}
+.bin{margin-left:auto;font-size:12.5px;line-height:1.9}
+.bin b{color:#F4511E;font-weight:600}
+.bac{display:flex;flex-direction:column;gap:6px}
+.bmn{background:#1E88E5;color:#fff;border:none;padding:9px 22px;border-radius:4px;font-size:12.5px;cursor:pointer;font-weight:500;white-space:nowrap}
+.bmn:hover{background:#1976D2}
+.bsb{background:#fff;color:#1E88E5;border:1px solid #1E88E5;padding:8px 22px;border-radius:4px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.brt{width:300px}
+.rc{background:#fff;border-radius:8px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.rh{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.rbd{background:#43A047;color:#fff;font-size:10.5px;padding:3px 8px;border-radius:3px}
+.ris{font-size:12px;color:#37474f}
+.rbs{display:flex;gap:7px;justify-content:center;margin-bottom:14px}
+.rb{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#EF5350,#C62828);color:#fff;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(198,40,40,.3)}
+.rt2{display:flex;gap:4px;margin-bottom:11px}
+.rt2 div{flex:1;text-align:center;padding:6px 0;font-size:10.5px;border:1px solid #e0e6eb;border-radius:4px;cursor:pointer;color:#607d8b}
+.rt2 div.on{background:#1E88E5;color:#fff;border-color:#1E88E5}
+.htb{width:100%;font-size:11px;border-collapse:collapse}
+.htb th{color:#90a4ae;font-weight:500;padding:6px 4px;border-bottom:1px solid #eceff1;text-align:left}
+.htb td{padding:6px 4px;color:#546e7a;border-bottom:1px solid #f5f7f9}
+.htb td.nu{letter-spacing:2px;color:#37474f}
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.rcd{background:#fff;border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06);transition:transform .16s,box-shadow .16s}
+.rcd:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.13)}
+.rcv{height:106px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;position:relative}
+.rcv .lv{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.35);color:#fff;font-size:9.5px;padding:3px 7px;border-radius:3px}
+.rcb{padding:11px 12px}
+.rcn{font-size:13.5px;font-weight:600;color:#263238;margin-bottom:4px}
+.rcs{font-size:11px;color:#90a4ae;display:flex;justify-content:space-between}
+.rcs .on2{color:#43A047}
+.actw{display:flex;gap:20px}
+.actside{width:82px;background:#fff;border-radius:8px;padding:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.06);height:fit-content}
+.actside div{padding:11px 0;text-align:center;font-size:12.5px;color:#607d8b;cursor:pointer;position:relative}
+.actside div.on{color:#1E88E5;font-weight:600}
+.actside div.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:#1E88E5;border-radius:0 2px 2px 0}
+.actg{flex:1;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.actc{background:#fff;border-radius:9px;overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .16s,box-shadow .16s}
+.actc:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.actv{height:154px;display:flex;align-items:center;justify-content:center}
+.actv .at1{font-size:29px;font-weight:900;color:#fff;text-shadow:0 3px 8px rgba(0,0,0,.3);text-align:center;line-height:1.25}
+.actv .at1 em{display:block;font-style:normal;color:#FFD54F;font-size:24px;letter-spacing:2px;margin-top:3px}
+.actb{padding:13px 15px}
+.actn{font-size:13.5px;font-weight:600;color:#263238;margin-bottom:5px}
+.actt{font-size:11px;color:#90a4ae}
+.adw{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.08)}
+.adhero{height:210px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.adhero .h1{font-size:38px;font-weight:900;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.3)}
+.adhero .h2{font-size:26px;font-weight:900;color:#FFD54F;letter-spacing:4px;text-shadow:0 3px 10px rgba(0,0,0,.3)}
+.adhero .h3{font-size:13px;color:rgba(255,255,255,.9);margin-top:8px;letter-spacing:2px}
+.adbody{padding:26px 30px}
+.adsec{margin-bottom:22px}
+.adsec h3{font-size:14.5px;font-weight:600;color:#1565C0;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.adsec h3::before{content:'';width:3px;height:15px;background:#1E88E5;border-radius:2px}
+.adsec p,.adsec li{font-size:12.5px;color:#546e7a;line-height:1.9}
+.adsec ul{padding-left:19px}
+.adtb{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.adtb th{background:#f5f9fc;color:#546e7a;padding:9px 12px;text-align:left;font-weight:600;border:1px solid #e8eef5}
+.adtb td{padding:9px 12px;color:#607d8b;border:1px solid #eef2f7}
+.adtb td b{color:#F4511E}
+.adjoin{background:linear-gradient(135deg,#F4511E,#D84315);color:#fff;border:none;padding:13px 46px;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;display:block;margin:8px auto 0;box-shadow:0 4px 14px rgba(244,81,30,.3)}
+.hw{display:flex;gap:20px}
+.hside{width:200px;background:#fff;border-radius:8px;padding:8px 0;box-shadow:0 2px 10px rgba(0,0,0,.06);height:fit-content}
+.hgrp{border-bottom:1px solid #f1f5f9}
+.hgrp:last-child{border:none}
+.hgt{padding:13px 16px;font-size:13.5px;font-weight:600;color:#37474f;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.hgt:hover{background:#f8fafc}
+.hgt.act{color:#1E88E5;background:#f0f7ff}
+.hsub{display:none;padding-bottom:6px}
+.hsub.open{display:block}
+.hsub div{padding:8px 16px 8px 28px;font-size:12.5px;color:#78909c;cursor:pointer;position:relative}
+.hsub div:hover{color:#1E88E5}
+.hsub div.on{color:#1E88E5;font-weight:500}
+.hsub div.on::before{content:'•';position:absolute;left:17px}
+.hmain{flex:1;background:#fff;border-radius:8px;padding:24px 28px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.hq{margin-bottom:22px}
+.hq .qt{font-size:14px;font-weight:600;color:#263238;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.hq .qi{width:17px;height:17px;border-radius:50%;background:#26A69A;color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hq ul{padding-left:26px}
+.hq li{font-size:12.5px;color:#607d8b;line-height:1.95}
+.hq li b{color:#37474f}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;display:none;align-items:center;justify-content:center;padding:20px}
+.mask.open{display:flex}
+.dlg{background:linear-gradient(160deg,#e8f4fd,#c5e4f7);border-radius:14px;max-width:900px;width:100%;padding:32px 34px 30px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.dlgx{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.12);border:none;color:#fff;font-size:17px;cursor:pointer}
+.dlgpv{height:222px;background:linear-gradient(135deg,#5B9BD5,#7FB3E0);border-radius:10px;margin-bottom:26px;display:flex;align-items:center;justify-content:center;gap:26px;padding:20px}
+.dvph{width:118px;height:186px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:11px;color:#90a4ae;text-align:center;padding:9px}
+.dvpc{width:300px;height:180px;background:#fff;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:11.5px;color:#90a4ae}
+.dlrow{display:flex;justify-content:center;gap:34px;flex-wrap:wrap}
+.dlit{text-align:center;cursor:pointer}
+.dlic{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 9px;box-shadow:0 3px 10px rgba(0,0,0,.1);transition:transform .16s}
+.dlit:hover .dlic{transform:translateY(-3px)}
+.dlit .dln{font-size:12.5px;color:#37474f;font-weight:500}
+.vipw{background:radial-gradient(ellipse at 50% 30%,#4527A0,#1A0B3D 70%);border-radius:12px;padding:56px 30px 46px;text-align:center;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.vipstar{position:absolute;border-radius:50%;background:#fff}
+.viplogo{width:74px;height:74px;border-radius:50%;background:linear-gradient(135deg,#42A5F5,#1565C0);color:#fff;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 30px rgba(66,165,245,.5);position:relative}
+.vipname{font-size:15px;color:#fff;font-weight:600;margin-bottom:3px;position:relative}
+.vipen{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:3px;margin-bottom:24px;position:relative}
+.viptitle{font-size:82px;font-weight:900;background:linear-gradient(180deg,#FFF9C4,#FFB300);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:6px;line-height:1;margin-bottom:14px;position:relative}
+.vipsub{font-size:17px;color:#fff;letter-spacing:8px;margin-bottom:10px;position:relative}
+.vipsub2{font-size:13.5px;color:#FFD54F;letter-spacing:4px;position:relative}
+.vipgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+.vipc{background:#fff;border-radius:8px;padding:19px 16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;transition:transform .16s}
+.vipc:hover{transform:translateY(-3px)}
+.vipci{font-size:26px;margin-bottom:9px}
+.vipcn{font-size:13.5px;font-weight:600;color:#263238;margin-bottom:5px}
+.vipcv{font-size:19px;font-weight:800;color:#C09B50}
+.vipcd{font-size:10.5px;color:#90a4ae;margin-top:3px}
+.csw{max-width:620px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.cshead{background:linear-gradient(135deg,#7E57C2,#5E35B1);padding:22px 24px;display:flex;align-items:center;gap:12px}
+.cslogo{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);color:#5E35B1;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cshead .cn2{color:#fff;font-size:15.5px;font-weight:600}
+.cshead .cs2{color:rgba(255,255,255,.75);font-size:11.5px;margin-top:2px}
+.csbody{padding:26px 24px;min-height:240px;max-height:400px;overflow-y:auto;background:#f8fafc}
+.csmsg{background:#fff;border-radius:10px;padding:14px 17px;margin-bottom:11px;box-shadow:0 1px 4px rgba(0,0,0,.05);max-width:78%}
+.csmsg p{font-size:12.5px;line-height:1.9}
+.csquick{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.csq{background:#fff;border:1px solid #e0e6eb;color:#546e7a;padding:7px 14px;border-radius:16px;font-size:12px;cursor:pointer}
+.csq:hover{border-color:#1E88E5;color:#1E88E5}
+.csinput{display:flex;gap:9px;padding:14px 18px;border-top:1px solid #eceff1;background:#fff}
+.csinput input{flex:1;border:1px solid #e0e6eb;border-radius:6px;padding:9px 13px;font-size:12.5px;outline:none}
+.csinput input:focus{border-color:#1E88E5}
+.cssend{background:#1E88E5;color:#fff;border:none;padding:9px 22px;border-radius:6px;font-size:12.5px;cursor:pointer}
+.wlw{background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.wlh{background:linear-gradient(120deg,#C09B50,#8D6E30);padding:22px 26px;color:#fff}
+.wlh h2{font-size:20px;font-weight:700;margin-bottom:5px}
+.wlh p{font-size:12px;opacity:.85}
+.wltabs{display:flex;border-bottom:1px solid #eceff1;padding:0 20px}
+.wltabs div{padding:13px 20px;font-size:13px;color:#78909c;cursor:pointer}
+.wltabs div.on{color:#1E88E5;font-weight:600;border-bottom:2px solid #1E88E5}
+.wtb{width:100%;border-collapse:collapse;font-size:12.5px}
+.wtb th{padding:12px 18px;text-align:left;color:#90a4ae;font-weight:500;border-bottom:1px solid #eceff1;background:#fafcfe}
+.wtb td{padding:12px 18px;color:#546e7a;border-bottom:1px solid #f5f7f9}
+.wtb tr:hover td{background:#f8fbfe}
+.wrk{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff}
+.rk1{background:linear-gradient(135deg,#FFD54F,#F9A825)}
+.rk2{background:linear-gradient(135deg,#B0BEC5,#78909C)}
+.rk3{background:linear-gradient(135deg,#BCAAA4,#8D6E63)}
+.rkn{background:#eceff1;color:#90a4ae}
+.wam{color:#F4511E;font-weight:700;font-size:13.5px}
+.ndw{background:#fff;border-radius:9px;padding:30px 34px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.ndt{font-size:20px;font-weight:600;color:#263238;margin-bottom:9px}
+.ndm{font-size:11.5px;color:#b0bec5;padding-bottom:16px;border-bottom:1px solid #eceff1;margin-bottom:20px}
+.ndb p{font-size:13px;color:#546e7a;line-height:2.05;margin-bottom:13px}
+.ndb h4{font-size:14px;font-weight:600;color:#37474f;margin:18px 0 9px}
+.ndb ul{padding-left:20px;margin-bottom:13px}
+.ndb li{font-size:13px;color:#607d8b;line-height:2}
+.bn{position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;box-shadow:0 -2px 12px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;gap:32px;z-index:100}
+.bni{text-align:center;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .16s}
+.bni:hover{background:#f5f9fc}
+.bni.on .l{color:#1E88E5;font-weight:600}
+.bnc{width:32px;height:32px;border-radius:50%;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.bni .l{font-size:10px;color:#78909c}
+.i1{background:#EC407A}.i2{background:#26A69A}.i3{background:#66BB6A}
+.i4{background:#26C6DA}.i5{background:#26A69A}.i6{background:#29B6F6}
+.tst{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(30,41,59,.94);color:#fff;padding:11px 22px;border-radius:6px;font-size:12.5px;z-index:2000;opacity:0;pointer-events:none;transition:all .22s}
+.tst.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<button class="pbtn" id="pbtn" onclick="tp()">♪</button>
+
+<div class="sp" id="sp">
+  <div class="ph"><h2>音效测试面板</h2><button class="pc" onclick="tp()">×</button></div>
+  <div class="ps">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+      <h3 style="margin:0">背景音乐</h3>
+      <span class="srcbadge" id="bgmSrc">加载中…</span>
+    </div>
+    <div class="bl" id="bgmList"><div class="et">加载中…</div></div>
+    <label class="mu" style="margin-top:8px">＋ 临时添加 BGM（仅本机可见）<input type="file" accept="audio/*" multiple onchange="ldBgm(this)"></label>
+    <div class="vr"><label>音量</label><input type="range" min="0" max="100" value="35" oninput="sbv(this.value)"><span class="vv" id="bv">35%</span></div>
+  </div>
+  <div class="ps">
+    <h3>交互音效</h3>
+    <div id="slotRows"></div>
+    <div class="vr"><label>音量</label><input type="range" min="0" max="100" value="70" oninput="ssv(this.value)"><span class="vv" id="sv">70%</span></div>
+  </div>
+  <div class="ps" style="border:none">
+    <h3>触发位置</h3>
+    <p style="font-size:11px;color:#94a3b8;line-height:1.9">
+      <b style="color:#64748b">点击音</b> — 顶部导航、游戏分类 Tab、游戏入口、公告、卡片、下载弹窗、客服、返回按钮<br>
+      <b style="color:#64748b">切换音</b> — Banner 左右箭头与圆点<br>
+      <b style="color:#64748b">选号音</b> — 投注页全部操作：玩法标签、号码、快捷键（全奇大偶小清）、常规/桌游、模式（百十元角分）、倍数增减<br>
+      <b style="color:#64748b">投注音</b> — 直接投注、添加购彩篮、参与活动<br>
+      <b style="color:#64748b">中奖音</b> — 投注后延迟 1.3 秒触发
+    </p>
+    <p style="font-size:11px;color:#94a3b8;line-height:1.9;margin-top:10px">
+      <span class="cloudtag">云端</span> 标记的文件所有人都能听到，由管理员在仓库中维护。<br>
+      <span class="localtag">本机</span> 标记的是你临时添加的，只在你自己的浏览器里，方便试听对比。
+    </p>
+    <button class="cb" onclick="clrAll()">清空本机临时文件</button>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="lg" onclick="go('lobby')">
+    <div class="lb">ub8</div>
+    <div class="lt"><div class="cn">优游国际</div><div class="en">INTERNATIONAL</div></div>
+  </div>
+  <div class="nm2">
+    <a class="on" data-p="lobby" onclick="go('lobby',this)">大厅</a>
+    <a data-p="lottery" onclick="go('lottery',this)">彩票</a>
+    <a data-p="chess" onclick="go('chess',this)">棋牌</a>
+    <a data-p="live" onclick="go('live',this)">真人</a>
+    <a data-p="slots" onclick="go('slots',this)">电子</a>
+    <a data-p="fish" onclick="go('fish',this)">捕鱼</a>
+    <a data-p="sport" onclick="go('sport',this)">体育</a>
+  </div>
+  <button class="bln" onclick="sfx('click')">登录账号</button>
+</div>
+
+<div class="pg2 on" id="p-lobby"><div class="wrap">
+  <div class="ban" id="banBox" onclick="openBanner()">
+    <button class="bar l" onclick="banPrev(event)">‹</button>
+    <button class="bar r" onclick="banNext(event)">›</button>
+    <div class="bdots" id="bdots"></div>
+  </div>
+  <div class="lw">
+    <div class="lm">
+      <div class="tr2" id="hotTabs"></div>
+      <div class="gg2" id="hotGrid"></div>
+    </div>
+    <div class="nb">
+      <div class="nt">
+        <div class="on" id="ntab0" onclick="swNotice(0)">平台公告</div>
+        <div id="ntab1" onclick="swNotice(1)">中奖排行</div>
+      </div>
+      <div id="noticeList"></div>
+      <div class="more" onclick="go('winners')">查看更多</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-notice"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>平台公告</h1></div>
+  <div class="ndw" id="noticeDetail"></div>
+</div></div>
+
+<div class="pg2" id="p-winners"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>中奖排行榜</h1></div>
+  <div class="wlw">
+    <div class="wlh"><h2>近期大奖得主</h2><p>数据每 5 分钟更新一次 · 用户名已做脱敏处理</p></div>
+    <div class="wltabs">
+      <div class="on" onclick="swWin(this,0)">今日榜</div>
+      <div onclick="swWin(this,1)">本周榜</div>
+      <div onclick="swWin(this,2)">本月榜</div>
+    </div>
+    <table class="wtb"><thead><tr><th style="width:70px">排名</th><th>用户</th><th>游戏</th><th>中奖金额</th><th>时间</th></tr></thead>
+    <tbody id="winBody"></tbody></table>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-activity"><div class="wrap">
+  <div class="actw"><div class="actside" id="actSide"></div><div class="actg" id="actGrid"></div></div>
+</div></div>
+
+<div class="pg2" id="p-actdetail"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('activity')">← 返回活动列表</button><h1 id="adTitle">活动详情</h1></div>
+  <div class="adw" id="adContent"></div>
+</div></div>
+
+<div class="pg2" id="p-help"><div class="wrap">
+  <div class="hw"><div class="hside" id="helpSide"></div><div class="hmain" id="helpMain"></div></div>
+</div></div>
+
+<div class="pg2" id="p-vip"><div class="wrap">
+  <div class="vipw" id="vipHero">
+    <div class="viplogo">ub8</div>
+    <div class="vipname">优游国际</div>
+    <div class="vipen">INTERNATIONAL</div>
+    <div class="viptitle">VIP</div>
+    <div class="vipsub">优游国际VIP尊荣礼遇</div>
+    <div class="vipsub2">尊贵特权 · 唯你独享</div>
+  </div>
+  <div class="vipgrid">
+    <div class="vipc" onclick="sfx('click')"><div class="vipci">💰</div><div class="vipcn">每日返水</div><div class="vipcv">1.2%</div><div class="vipcd">无上限返还</div></div>
+    <div class="vipc" onclick="sfx('click')"><div class="vipci">🎁</div><div class="vipcn">升级礼金</div><div class="vipcv">¥18,888</div><div class="vipcd">达标即刻到账</div></div>
+    <div class="vipc" onclick="sfx('click')"><div class="vipci">⚡</div><div class="vipcn">提款额度</div><div class="vipcv">¥100万</div><div class="vipcd">单日提款上限</div></div>
+    <div class="vipc" onclick="sfx('click')"><div class="vipci">👤</div><div class="vipcn">专属客服</div><div class="vipcv">VIP专线</div><div class="vipcd">7×24 一对一</div></div>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-service"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>在线客服</h1></div>
+  <div class="csw">
+    <div class="cshead">
+      <div class="cslogo">ub8</div>
+      <div><div class="cn2">【优游国际】在线客服</div><div class="cs2">客服工号 5000437 · 平均响应 30 秒</div></div>
+    </div>
+    <div class="csbody" id="csBody">
+      <div class="csmsg"><p style="color:#E53935;text-align:center">您好，这里是【优游国际】平台，欢迎您的咨询<br>温馨提醒：请理性游戏，祝您好运常伴！</p></div>
+      <div class="csquick">
+        <div class="csq" onclick="csAsk('如何充值？')">如何充值？</div>
+        <div class="csq" onclick="csAsk('提现多久到账？')">提现多久到账？</div>
+        <div class="csq" onclick="csAsk('忘记密码怎么办？')">忘记密码怎么办？</div>
+        <div class="csq" onclick="csAsk('如何绑定银行卡？')">如何绑定银行卡？</div>
+        <div class="csq" onclick="csAsk('活动怎么参加？')">活动怎么参加？</div>
+      </div>
+    </div>
+    <div class="csinput">
+      <input id="csInput" placeholder="请输入您的问题…" onkeydown="if(event.key==='Enter')csSend()">
+      <button class="cssend" onclick="csSend()">发送</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-lottery"><div class="wrap">
+  <div class="bw">
+    <div class="bfl">
+      <div class="bh">
+        <div class="blogo">优游<br>分分彩</div>
+        <div><div class="btt">优游分分彩</div><div class="bis">第20260902-0552期</div></div>
+        <div class="btm" id="tmr">00:00:58</div>
+        <div class="msw"><div class="on" onclick="swm(this)">常规</div><div onclick="swm(this)">桌游</div></div>
+      </div>
+      <div class="pt2" id="playTabs"></div>
+      <div class="nr" id="numRows"></div>
+      <div class="bf">
+        <div class="mg"><span class="lbl">模式</span><span onclick="swu(this)">百</span><span onclick="swu(this)">十</span><span class="on" onclick="swu(this)">元</span><span onclick="swu(this)">角</span><span onclick="swu(this)">分</span></div>
+        <div class="mtg"><button onclick="cmt(-1)">−</button><input id="mtv" value="1" readonly><button onclick="cmt(1)">+</button><span class="u">倍</span></div>
+        <div class="bin">已选：<b id="sc">0</b> 注<br>总计：<b id="ta">0.00</b> 元</div>
+        <div class="bac"><button class="bmn" onclick="doBet()">直接投注</button><button class="bsb" onclick="addCart()">添加购彩篮</button></div>
+      </div>
+    </div>
+    <div class="brt"><div class="rc">
+      <div class="rh"><span class="rbd">已开奖</span><span class="ris">第20260902-0550期</span></div>
+      <div class="rbs"><div class="rb">0</div><div class="rb">3</div><div class="rb">4</div><div class="rb">6</div><div class="rb">6</div></div>
+      <div class="rt2"><div onclick="sfx('click')">购彩篮</div><div onclick="sfx('click')">今日投注</div><div class="on" onclick="sfx('click')">开奖信息</div><div onclick="go('winners')">排行</div></div>
+      <table class="htb">
+        <tr><th>期号</th><th>开奖号码</th><th>后三</th></tr>
+        <tr><td>0550</td><td class="nu">0 3 4 6 6</td><td>组三</td></tr>
+        <tr><td>0549</td><td class="nu">1 6 7 8 7</td><td>组三</td></tr>
+        <tr><td>0548</td><td class="nu">3 1 0 1 0</td><td>组三</td></tr>
+        <tr><td>0547</td><td class="nu">7 5 9 0 6</td><td>组六</td></tr>
+        <tr><td>0546</td><td class="nu">3 7 8 6 2</td><td>组六</td></tr>
+        <tr><td>0545</td><td class="nu">3 6 6 8 0</td><td>组六</td></tr>
+        <tr><td>0544</td><td class="nu">2 2 7 9 7</td><td>组三</td></tr>
+      </table>
+    </div></div>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-chess"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>棋牌游戏</h1></div>
+  <div class="rg" id="chessRooms"></div>
+</div></div>
+<div class="pg2" id="p-live"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>真人娱乐</h1></div>
+  <div class="rg" id="liveRooms"></div>
+</div></div>
+<div class="pg2" id="p-slots"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>电子游戏</h1></div>
+  <div class="rg" id="slotRooms"></div>
+</div></div>
+<div class="pg2" id="p-fish"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>捕鱼游戏</h1></div>
+  <div class="rg" id="fishRooms"></div>
+</div></div>
+<div class="pg2" id="p-sport"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>体育赛事</h1></div>
+  <div class="rg" id="sportRooms"></div>
+</div></div>
+
+<div class="mask" id="dlMask" onclick="if(event.target===this)closeDl()">
+  <div class="dlg">
+    <button class="dlgx" onclick="closeDl()">×</button>
+    <div class="dlgpv">
+      <div class="dvph">手机端<br>APP 预览</div>
+      <div class="dvpc">电脑端网页预览</div>
+    </div>
+    <div class="dlrow">
+      <div class="dlit" onclick="sfx('click');toast('开始下载电脑版')"><div class="dlic">💻</div><div class="dln">电脑版</div></div>
+      <div class="dlit" onclick="sfx('click');toast('开始下载 iPhone 版')"><div class="dlic">🍎</div><div class="dln">iPhone</div></div>
+      <div class="dlit" onclick="sfx('click');toast('开始下载 Android 版')"><div class="dlic">🤖</div><div class="dln">Android</div></div>
+      <div class="dlit" onclick="sfx('click');toast('开始下载挂机软件')"><div class="dlic">⚙️</div><div class="dln">挂机软件</div></div>
+      <div class="dlit" onclick="sfx('click');toast('跳转 USDT 交易所')"><div class="dlic">₮</div><div class="dln">USDT交易所</div></div>
+      <div class="dlit" onclick="sfx('click');toast('下载谷歌浏览器')"><div class="dlic">🌐</div><div class="dln">谷歌浏览器</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="bn">
+  <div class="bni on" id="bn-lobby" onclick="go('lobby')"><div class="bnc i1">⌂</div><div class="l">大厅</div></div>
+  <div class="bni" id="bn-activity" onclick="go('activity')"><div class="bnc i2">▦</div><div class="l">活动</div></div>
+  <div class="bni" id="bn-help" onclick="go('help')"><div class="bnc i3">?</div><div class="l">帮助</div></div>
+  <div class="bni" id="bn-dl" onclick="openDl()"><div class="bnc i4">⇩</div><div class="l">下载</div></div>
+  <div class="bni" id="bn-vip" onclick="go('vip')"><div class="bnc i5">♛</div><div class="l">VIP</div></div>
+  <div class="bni" id="bn-service" onclick="go('service')"><div class="bnc i6">☎</div><div class="l">客服</div></div>
+</div>
+
+<div class="tst" id="tst"></div>
+
+<script>
+/* ===== 云端音频清单（GitHub 仓库自动读取）===== */
+const MANIFEST_URL='sounds/list.json';
+
+/* ===== 音频：每槽位独立音效列表 ===== */
+const POOL={},B=[],ASSIGN={};
+const BANK={click:[],swipe:[],select:[],bet:[],win:[]};
+let cur=null,bVol=.35,sVol=.7,db=null;
+const POOL_SIZE=4;
+
+/* 加载云端清单 */
+async function loadCloud(){
+  const badge=document.getElementById('bgmSrc');
+  try{
+    const r=await fetch(MANIFEST_URL+'?t='+Date.now());
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const m=await r.json();
+    // BGM
+    (m.bgm||[]).forEach(f=>{
+      B.push({id:'cloud_bgm_'+f,name:f.replace(/\.[^.]+$/,''),url:'sounds/bgm/'+f,cloud:true});
+    });
+    // 各槽位音效
+    ['click','swipe','select','bet','win'].forEach(k=>{
+      (m[k]||[]).forEach(f=>{
+        BANK[k].push({id:'cloud_'+k+'_'+f,name:f.replace(/\.[^.]+$/,''),url:'sounds/'+k+'/'+f,cloud:true});
+      });
+      // 默认选中第一个
+      if(BANK[k].length&&!ASSIGN[k]){
+        ASSIGN[k]=BANK[k][0].id;buildPool(k,BANK[k][0].url);
+      }
+    });
+    const total=(m.bgm||[]).length+['click','swipe','select','bet','win'].reduce((s,k)=>s+(m[k]||[]).length,0);
+    badge.textContent='云端 '+total+' 个文件';
+    badge.className='srcbadge ok';
+    return true;
+  }catch(e){
+    badge.textContent='本地模式';
+    badge.className='srcbadge';
+    return false;
+  }
+}
+const SLOTS=[
+ {k:'click',n:'点击音'},
+ {k:'swipe',n:'切换音'},
+ {k:'select',n:'选号音'},
+ {k:'bet',n:'投注音'},
+ {k:'win',n:'中奖音'}
+];
+
+function buildPool(k,url){
+  const arr=[];
+  for(let i=0;i<POOL_SIZE;i++){
+    const a=new Audio(url);
+    a.preload='auto';a.volume=sVol;a.load();
+    arr.push(a);
+  }
+  POOL[k]={arr,idx:0};
+}
+function sfx(k){
+  const p=POOL[k];if(!p)return;
+  const a=p.arr[p.idx];
+  p.idx=(p.idx+1)%POOL_SIZE;
+  a.volume=sVol;
+  try{a.currentTime=0}catch(e){}
+  a.play().catch(()=>{});
+}
+function tsf(k){if(!POOL[k]){toast('该槽位还没分配音效');return}sfx(k)}
+
+/* 试听某槽位下的某个文件 */
+function prevOne(k,i,e){
+  if(e)e.stopPropagation();
+  const it=BANK[k][i];if(!it)return;
+  const a=new Audio(it.url);a.volume=sVol;a.play().catch(()=>{});
+}
+
+/* 当前展开的槽位 */
+let openSlot=null;
+
+/* 渲染槽位（每个独立上传 + 独立列表） */
+function renderSlots(){
+  const bx=document.getElementById('slotRows');
+  bx.innerHTML=SLOTS.map(s=>{
+    const list=BANK[s.k];
+    const sel=list.find(x=>x.id===ASSIGN[s.k]);
+    const curName=sel?sel.name:'未上传';
+    const isOpen=openSlot===s.k;
+    let body='';
+    if(isOpen){
+      const items=list.length
+        ? list.map((it,i)=>
+            '<div class="sopt'+(ASSIGN[s.k]===it.id?' cursel':'')+'">'+
+            '<span class="sply" onclick="prevOne(\''+s.k+'\','+i+',event)">▶</span>'+
+            '<span class="sn" onclick="pickOne(\''+s.k+'\',\''+it.id+'\')">'+it.name+'</span>'+
+            (it.cloud?'<span class="cloudtag">云端</span>':'<span class="localtag">本机</span>')+
+            (it.cloud?'':'<span class="sdel" onclick="rmOne(\''+s.k+'\','+i+',event)">×</span>')+
+            '</div>'
+          ).join('')
+        : '<div class="sempty">还没有文件，点下方按钮临时添加</div>';
+      body='<div class="slist">'+items+
+        '<label class="addbtn">＋ 临时添加（仅本机可见）'+
+        '<input type="file" accept="audio/*" multiple onchange="ldOne(this,\''+s.k+'\')"></label>'+
+        '</div>';
+    }
+    return '<div class="slotbox'+(isOpen?' open':'')+'">'+
+      '<div class="slothd" onclick="tglSlot(\''+s.k+'\')">'+
+        '<span class="slotn">'+s.n+'</span>'+
+        '<span class="slotv'+(sel?' has':'')+'">'+curName+'</span>'+
+        (list.length>1?'<span class="cnt">'+list.length+'</span>':'')+
+        '<button class="pl" onclick="tsf(\''+s.k+'\');event.stopPropagation()">试听</button>'+
+        '<span class="slotar">'+(isOpen?'▲':'▼')+'</span>'+
+      '</div>'+body+'</div>';
+  }).join('');
+}
+
+function tglSlot(k){sfx('click');openSlot=openSlot===k?null:k;renderSlots()}
+
+/* 选中该槽位下某个文件 */
+function pickOne(k,id){
+  const it=BANK[k].find(x=>x.id===id);if(!it)return;
+  ASSIGN[k]=id;buildPool(k,it.url);
+  saveAssign();renderSlots();
+  toast(SLOTS.find(s=>s.k===k).n+' → '+it.name);
+  setTimeout(()=>sfx(k),120);
+}
+
+/* 上传文件到指定槽位 */
+async function ldOne(input,k){
+  const fs=[...input.files];if(!fs.length)return;
+  let firstId=null;
+  for(const f of fs){
+    const id='s_'+k+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    BANK[k].push({id,name:f.name,url:URL.createObjectURL(f)});
+    if(!firstId)firstId=id;
+    try{await put(id,f.name,f,'s',k)}catch(x){}
+  }
+  // 该槽位原本为空 → 自动选中第一个
+  if(!ASSIGN[k]&&firstId){
+    const it=BANK[k].find(x=>x.id===firstId);
+    ASSIGN[k]=firstId;buildPool(k,it.url);saveAssign();
+  }
+  renderSlots();toast('已添加 '+fs.length+' 个文件');
+  input.value='';
+}
+
+/* 删除该槽位下某个文件 */
+async function rmOne(k,i,e){
+  if(e)e.stopPropagation();
+  const it=BANK[k][i];if(!it)return;
+  if(ASSIGN[k]===it.id){delete ASSIGN[k];delete POOL[k];saveAssign()}
+  try{await delA(it.id)}catch(x){}
+  BANK[k].splice(i,1);
+  renderSlots();toast('已删除：'+it.name);
+}
+
+function saveAssign(){localStorage.setItem('ub8assign',JSON.stringify(ASSIGN))}
+
+function initDB(){return new Promise((r,j)=>{const q=indexedDB.open('ub8_snd3',1);
+q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('a'))d.createObjectStore('a',{keyPath:'id'})};
+q.onsuccess=e=>{db=e.target.result;r()};q.onerror=j})}
+function put(id,name,blob,t,slot){return new Promise((r,j)=>{const x=db.transaction('a','readwrite');x.objectStore('a').put({id,name,blob,t,slot});x.oncomplete=r;x.onerror=j})}
+function all(){return new Promise((r,j)=>{const q=db.transaction('a','readonly').objectStore('a').getAll();q.onsuccess=()=>r(q.result);q.onerror=j})}
+function delA(id){return new Promise((r,j)=>{const x=db.transaction('a','readwrite');x.objectStore('a').delete(id);x.oncomplete=r;x.onerror=j})}
+function clrA(){return new Promise((r,j)=>{const x=db.transaction('a','readwrite');x.objectStore('a').clear();x.oncomplete=r;x.onerror=j})}
+
+async function restore(){
+  // 1. 先加载云端清单
+  await loadCloud();
+  // 2. 再叠加本机临时文件
+  await initDB();const rows=await all();
+  rows.forEach(r=>{const u=URL.createObjectURL(r.blob);
+    if(r.t==='s'){
+      const k=r.slot||(r.id.split('_')[1]);
+      if(BANK[k])BANK[k].push({id:r.id,name:r.name,url:u});
+    }
+    else B.push({id:r.id,name:r.name,url:u})});
+  // 3. 恢复上次选择
+  try{
+    const saved=JSON.parse(localStorage.getItem('ub8assign')||'{}');
+    Object.keys(saved).forEach(k=>{
+      if(!BANK[k])return;
+      const it=BANK[k].find(x=>x.id===saved[k]);
+      if(it){ASSIGN[k]=saved[k];buildPool(k,it.url)}
+    });
+  }catch(e){}
+  renderB();renderSlots();
+  const bv=localStorage.getItem('ub8bv3'),sv=localStorage.getItem('ub8sv3');
+  if(bv){bVol=bv/100;document.getElementById('bv').textContent=bv+'%';document.querySelectorAll('.vr input')[0].value=bv}
+  if(sv){sVol=sv/100;document.getElementById('sv').textContent=sv+'%';document.querySelectorAll('.vr input')[1].value=sv}}
+
+function tp(){document.getElementById('sp').classList.toggle('open');document.getElementById('pbtn').classList.toggle('sh')}
+async function ldBgm(i){const fs=[...i.files];if(!fs.length)return;
+  for(const f of fs){const id='b_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    B.push({id,name:f.name,url:URL.createObjectURL(f)});try{await put(id,f.name,f,'b')}catch(x){}}
+  renderB();toast('已保存 '+fs.length+' 首')}
+function renderB(){const bx=document.getElementById('bgmList');
+  if(!B.length){bx.innerHTML='<div class="et">还没有 BGM</div>';return}
+  bx.innerHTML=B.map((b,i)=>
+    '<div class="bi" id="bi-'+i+'"><span class="ic" onclick="pb('+i+')">▶</span>'+
+    '<span class="nm" onclick="pb('+i+')">'+b.name+'</span>'+
+    (b.cloud?'<span class="cloudtag">云端</span>':'<span class="localtag">本机</span>')+
+    (b.cloud?'':'<span class="dl" onclick="rmB('+i+',event)">×</span>')+
+    '</div>').join('')}
+function pb(i){const el=document.getElementById('bi-'+i);if(!el)return;
+  if(cur&&cur.i===i){cur.a.pause();document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');cur=null;return}
+  if(cur)cur.a.pause();
+  document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');
+  const a=new Audio(B[i].url);a.loop=true;a.volume=bVol;a.play();cur={i,a};
+  el.classList.add('pg');el.querySelector('.ic').textContent='❚❚'}
+async function rmB(i,e){e.stopPropagation();if(cur&&cur.i===i){cur.a.pause();cur=null}
+  if(B[i].id)try{await delA(B[i].id)}catch(x){}
+  B.splice(i,1);renderB();toast('已删除')}
+async function clrAll(){if(!confirm('清空本机临时添加的音频？（云端文件不受影响）'))return;
+  if(cur){cur.a.pause();cur=null}try{await clrA()}catch(x){}
+  B.length=0;
+  Object.keys(BANK).forEach(k=>BANK[k].length=0);
+  Object.keys(POOL).forEach(k=>delete POOL[k]);
+  Object.keys(ASSIGN).forEach(k=>delete ASSIGN[k]);
+  localStorage.removeItem('ub8assign');
+  openSlot=null;
+  await loadCloud();
+  renderB();renderSlots();toast('已清空本机文件')}
+function sbv(v){bVol=v/100;document.getElementById('bv').textContent=v+'%';if(cur)cur.a.volume=bVol;localStorage.setItem('ub8bv3',v)}
+function ssv(v){sVol=v/100;document.getElementById('sv').textContent=v+'%';
+  Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));localStorage.setItem('ub8sv3',v)}
+function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
+
+const bnMap={lobby:'bn-lobby',activity:'bn-activity',actdetail:'bn-activity',help:'bn-help',vip:'bn-vip',service:'bn-service'};
+function go(p,el){sfx('click');
+  document.querySelectorAll('.pg2').forEach(x=>x.classList.remove('on'));
+  const t=document.getElementById('p-'+p);if(t)t.classList.add('on');
+  document.querySelectorAll('.nm2 a').forEach(a=>a.classList.remove('on'));
+  const na=el||document.querySelector('.nm2 a[data-p="'+p+'"]');if(na)na.classList.add('on');
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('on'));
+  const bid=bnMap[p];if(bid){const b=document.getElementById(bid);if(b)b.classList.add('on')}
+  window.scrollTo(0,0)}
+
+const acts=[
+ {n:'9月每日登录送，天天加好运',t:'2026-09-01 00:00:00 至 2026-09-30 23:59:59',t1:'每日登录送',t2:'天天加好运',bg:'linear-gradient(120deg,#7B1FA2,#C2185B 45%,#F06292)',cat:'日常',inBanner:1,
+  rules:['活动期间每日登录即可领取奖励','连续登录天数越多，奖励越丰厚','奖励于次日 00:00 自动到账','需完成 1 倍流水方可提现'],
+  th:['连续登录','每日奖励'],table:[['连续 1-3 天','¥2 / 天'],['连续 4-7 天','¥5 / 天'],['连续 8-15 天','¥10 / 天'],['连续 16-30 天','¥20 / 天']]},
+ {n:'优游初体验，新人专享礼',t:'2026-09-01 00:00:00 至 2026-09-30 23:59:59',t1:'优游初体验',t2:'新人专享礼',bg:'linear-gradient(120deg,#0277BD,#29B6F6 45%,#4DD0E1)',cat:'新人',inBanner:1,
+  rules:['仅限首次注册的新用户参与','完成对应任务即可领取奖励','奖励需在 7 日内领取，逾期作废','每个账号 / IP / 设备限领一次'],
+  th:['新人任务','奖励金额'],table:[['完成实名认证','¥8'],['首次充值满 ¥100','¥18'],['首次投注满 ¥500','¥22']]},
+ {n:'彩票盛典，好运连连',t:'2026-08-24 00:00:00 至 2026-09-20 23:59:59',t1:'好运连连',t2:'彩票盛典',bg:'linear-gradient(120deg,#E65100,#F57C00 45%,#FFB74D)',cat:'彩票',inBanner:1,
+  rules:['活动期间彩票投注即可累计有效流水','每日 12:00 结算前一日流水并派发彩金','彩金需完成 3 倍流水后方可提现','同一用户每日限领一次'],
+  th:['每日有效流水','可领彩金'],table:[['¥1,000 - ¥4,999','¥8'],['¥5,000 - ¥19,999','¥38'],['¥20,000 - ¥99,999','¥168'],['¥100,000 以上','¥888']]},
+ {n:'金骰狂欢，日日领彩金',t:'2026-08-24 00:00:00 至 2026-09-20 23:59:59',t1:'金骰狂欢',t2:'日日领彩金',bg:'linear-gradient(120deg,#01579B,#0288D1 45%,#4FC3F7)',cat:'骰宝',inBanner:1,
+  rules:['活动期间骰宝类游戏投注均计入有效流水','每日 14:00 开放领取，当日有效','彩金需完成 2 倍流水后方可提现','活动不与其他优惠同享'],
+  th:['骰宝有效流水','日领彩金'],table:[['¥2,000 - ¥9,999','¥12'],['¥10,000 - ¥49,999','¥58'],['¥50,000 - ¥199,999','¥238'],['¥200,000 以上','¥1,088']]},
+ {n:'体育激战，红包不停',t:'2026-08-22 00:00:00 至 2026-09-18 23:59:59',t1:'体育激战',t2:'红包不停',bg:'linear-gradient(120deg,#1A237E,#303F9F 45%,#5C6BC0)',cat:'体育',inBanner:1,
+  rules:['活动期间体育投注串关即可参与','串关场次越多，红包金额越高','需所有场次均结算后方可领取','走盘、取消场次不计入串关数'],
+  th:['串关类型','奖励红包'],table:[['3 串 1','¥18'],['5 串 1','¥68'],['8 串 1','¥288'],['10 串 1 以上','¥888']]},
+ {n:'中大奖冲排行，领红包',t:'2026-08-20 00:00:00 至 2026-09-15 23:59:59',t1:'中大奖冲排行',t2:'领红包',bg:'linear-gradient(120deg,#4A148C,#7B1FA2 45%,#BA68C8)',cat:'限时',inBanner:1,
+  rules:['活动期间单笔中奖金额均计入排行','每周一 12:00 结算上周排行并派发红包','排名相同时以达成时间先后为准','红包需完成 1 倍流水后方可提现'],
+  th:['周榜排名','奖励红包'],table:[['第 1 名','¥8,888'],['第 2 名','¥5,888'],['第 3 名','¥3,888'],['第 4-10 名','¥888']]},
+ {n:'棋牌竞技，赢家通吃',t:'2026-08-18 00:00:00 至 2026-09-25 23:59:59',t1:'棋牌竞技',t2:'赢家通吃',bg:'linear-gradient(120deg,#1B5E20,#388E3C 45%,#81C784)',cat:'棋牌',
+  rules:['活动期间棋牌类游戏对局均计入统计','每日结算胜场数并发放对应奖励','需完成整局对局方计入胜场','中途退出不计入统计'],
+  th:['每日胜场','奖励彩金'],table:[['10 - 29 场','¥15'],['30 - 59 场','¥58'],['60 - 99 场','¥168'],['100 场以上','¥588']]},
+ {n:'电子爆分，倍数狂欢',t:'2026-08-15 00:00:00 至 2026-09-30 23:59:59',t1:'电子爆分',t2:'倍数狂欢',bg:'linear-gradient(120deg,#BF360C,#E64A19 45%,#FF8A65)',cat:'电子',
+  rules:['活动期间电子游戏单笔达成对应倍数即可领取','以单笔投注金额与派彩金额比值计算','同一用户每日限领 3 次','需在达成后 24 小时内领取'],
+  th:['单笔爆分倍数','奖励彩金'],table:[['50 - 99 倍','¥28'],['100 - 299 倍','¥88'],['300 - 999 倍','¥388'],['1000 倍以上','¥1,888']]},
+ {n:'捕鱼盛宴，满载而归',t:'2026-08-12 00:00:00 至 2026-09-22 23:59:59',t1:'捕鱼盛宴',t2:'满载而归',bg:'linear-gradient(120deg,#006064,#00838F 45%,#4DD0E1)',cat:'捕鱼',
+  rules:['活动期间捕鱼类游戏消耗子弹计入统计','每日 16:00 结算并派发奖励','奖励需完成 2 倍流水后方可提现','活动仅限捕鱼类游戏参与'],
+  th:['每日消耗','奖励彩金'],table:[['¥500 - ¥1,999','¥6'],['¥2,000 - ¥9,999','¥32'],['¥10,000 - ¥49,999','¥148'],['¥50,000 以上','¥688']]},
+ {n:'VIP专属，尊享返水',t:'长期有效',t1:'VIP专属',t2:'尊享返水',bg:'linear-gradient(120deg,#3E2723,#6D4C41 45%,#C09B50)',cat:'VIP',
+  rules:['VIP 等级越高，返水比例越高','每日 12:00 自动结算并派发至账户余额','返水无需申请，无流水要求','等级依据累计投注额自动升级'],
+  th:['VIP 等级','每日返水'],table:[['V1 - V2','0.3%'],['V3 - V4','0.6%'],['V5 - V6','0.9%'],['V7 - V8','1.2%']]}
+];
+const banIdx=acts.map((a,i)=>a.inBanner?i:-1).filter(i=>i>=0);
+let bIdx=0;
+function buildBanner(){const box=document.getElementById('banBox');
+  const html=banIdx.map((ai,i)=>{const a=acts[ai];
+    const d=a.t.includes('至')?a.t.split(' 至 ')[0].slice(5,10).replace('-','/')+' - '+a.t.split(' 至 ')[1].slice(5,10).replace('-','/'):a.t;
+    return '<div class="bsl'+(i===0?' act':'')+'" style="background:'+a.bg+'"><div class="bt"><div class="t1">'+a.t1+'</div><div class="t2">'+a.t2+'</div><div class="t3">'+d+'</div></div></div>'}).join('');
+  box.insertAdjacentHTML('afterbegin',html);renderDots()}
+function renderDots(){document.getElementById('bdots').innerHTML=banIdx.map((_,i)=>'<div class="bdot'+(i===bIdx?' act':'')+'" onclick="goBan('+i+',event)"></div>').join('')}
+function showBan(i){document.querySelectorAll('.bsl').forEach((s,x)=>s.classList.toggle('act',x===i));bIdx=i;renderDots()}
+function banNext(e){if(e)e.stopPropagation();sfx('swipe');showBan((bIdx+1)%banIdx.length)}
+function banPrev(e){if(e)e.stopPropagation();sfx('swipe');showBan((bIdx-1+banIdx.length)%banIdx.length)}
+function goBan(i,e){if(e)e.stopPropagation();sfx('swipe');showBan(i)}
+function openBanner(){openAct(banIdx[bIdx])}
+buildBanner();
+setInterval(()=>showBan((bIdx+1)%banIdx.length),6000);
+
+/* ===== 大厅热门分类 Tab ===== */
+const hotCats=[
+ {n:'彩票',page:'lottery',games:[
+  {t:'优游分分彩',c:'c1',tag:'HOT'},{t:'优游30秒彩',c:'c2',tag:'HOT'},
+  {t:'优游秒秒彩',c:'c6',tag:'HOT'},{t:'优游两分彩',c:'c7',tag:'HOT'},
+  {t:'分分11选5',c:'c9',tag:'HOT'},{t:'腾讯分分彩',c:'c3',tag:''},
+  {t:'福彩3D',c:'c4',tag:''},{t:'香港六合彩',c:'c5',tag:'HOT'},
+  {t:'江苏骰宝',c:'c10',tag:''},{t:'极速快乐8',c:'c8',tag:'NEW'}]},
+ {n:'棋牌',page:'chess',games:[
+  {t:'DB棋牌',c:'c3',tag:'NEW'},{t:'开元棋牌',c:'c5',tag:'HOT'},
+  {t:'经典麻将',c:'c6',tag:'HOT'},{t:'德州扑克',c:'c7',tag:''},
+  {t:'斗地主',c:'c4',tag:'HOT'},{t:'炸金花',c:'c2',tag:''},
+  {t:'牛牛',c:'c1',tag:'HOT'},{t:'四川麻将',c:'c9',tag:''},
+  {t:'中国象棋',c:'c8',tag:''},{t:'21点',c:'c10',tag:''}]},
+ {n:'真人',page:'live',games:[
+  {t:'AG真人',c:'c4',tag:'NEW'},{t:'百家乐 A01',c:'c5',tag:'HOT'},
+  {t:'百家乐 A02',c:'c10',tag:''},{t:'骰宝 B01',c:'c3',tag:''},
+  {t:'轮盘 C01',c:'c6',tag:'HOT'},{t:'龙虎斗 D01',c:'c2',tag:'HOT'},
+  {t:'21点 E01',c:'c8',tag:''},{t:'百家乐 A03',c:'c1',tag:'VIP'},
+  {t:'骰宝 B02',c:'c7',tag:''},{t:'轮盘 C02',c:'c9',tag:''}]},
+ {n:'电子',page:'slots',games:[
+  {t:'幸运777',c:'c6',tag:'HOT'},{t:'钻石帝国',c:'c3',tag:'HOT'},
+  {t:'幸运四叶草',c:'c4',tag:'NEW'},{t:'黄金帝王',c:'c2',tag:''},
+  {t:'烈焰狂欢',c:'c1',tag:'HOT'},{t:'星辰传奇',c:'c7',tag:''},
+  {t:'嘉年华',c:'c9',tag:''},{t:'雷霆万钧',c:'c8',tag:'HOT'},
+  {t:'财神到',c:'c5',tag:''},{t:'水果机',c:'c10',tag:''}]},
+ {n:'捕鱼',page:'fish',games:[
+  {t:'AG捕鱼',c:'c8',tag:'HOT'},{t:'欢乐捕鱼',c:'c3',tag:''},
+  {t:'深海狂鲨',c:'c1',tag:'HOT'},{t:'海底世界',c:'c10',tag:''},
+  {t:'章鱼帝国',c:'c7',tag:''},{t:'巨兽来袭',c:'c6',tag:'HOT'},
+  {t:'河豚乐园',c:'c2',tag:''},{t:'龙虾传说',c:'c9',tag:''},
+  {t:'蓝鲸奇缘',c:'c5',tag:'NEW'},{t:'金蟾捕鱼',c:'c4',tag:''}]},
+ {n:'体育',page:'sport',games:[
+  {t:'英超联赛',c:'c4',tag:'HOT'},{t:'NBA',c:'c2',tag:'HOT'},
+  {t:'网球公开赛',c:'c9',tag:''},{t:'排球联赛',c:'c3',tag:''},
+  {t:'日本职棒',c:'c6',tag:'HOT'},{t:'乒乓球',c:'c10',tag:''},
+  {t:'拳击格斗',c:'c1',tag:'HOT'},{t:'F1赛车',c:'c7',tag:''},
+  {t:'电子竞技',c:'c8',tag:'NEW'},{t:'羽毛球',c:'c5',tag:''}]}
+];
+let hotIdx=0;
+function renderHotTabs(){
+  document.getElementById('hotTabs').innerHTML=
+   '<div class="hb">HOT</div>'+
+   hotCats.map((c,i)=>'<a class="'+(i===hotIdx?'on':'')+'" onclick="pickHot('+i+')">'+c.n+'</a>').join('');
+}
+function renderHotGrid(){
+  const c=hotCats[hotIdx];
+  document.getElementById('hotGrid').innerHTML=c.games.map(g=>{
+    const tag=g.tag?'<span class="tg '+(g.tag==='NEW'?'n':'h')+'">'+g.tag+'</span>':'';
+    return '<div class="gt '+g.c+'" onclick="go(\''+c.page+'\')">'+tag+g.t+'</div>';
+  }).join('');
+}
+function pickHot(i){sfx('click');hotIdx=i;renderHotTabs();renderHotGrid()}
+renderHotTabs();renderHotGrid();
+
+const notices=[
+ {t:'【置顶】【维护通知】DB棋牌',d:'09/01',
+  body:['为提升游戏体验与系统稳定性，DB棋牌将于近期进行例行维护升级。','维护期间该游戏将暂停开放，其余游戏不受影响，请合理安排游戏时间。'],
+  h4:'维护安排',li:['维护时间：2026-09-05 02:00 - 06:00（4 小时）','影响范围：DB棋牌全部房间','恢复方式：维护完成后自动开放，无需重新登录','如维护提前结束将另行公告']},
+ {t:'【置顶】《优游国际平台服务公告》',d:'05/01',
+  body:['为持续保障用户权益与资金安全，平台对服务条款进行了修订与说明。','请所有用户仔细阅读以下内容，继续使用本平台即视为已知悉并同意相关条款。'],
+  h4:'重点条款',li:['平台严禁任何形式的对冲、套利及违规刷单行为','账号仅限本人使用，禁止出借、转让或代打','充值提现均需通过平台官方渠道办理','如发现异常账户，平台有权冻结并进行核查']},
+ {t:'AG百家乐连捷再升级 未了***九日盈利再创新高',d:'09/01',
+  body:['用户 未了*** 在 AG 百家乐持续保持稳定表现，近九日连续实现盈利。','截至公告发布，该用户累计盈利已突破 128 万元，刷新本月平台个人盈利纪录。'],
+  h4:'战绩概览',li:['游戏项目：AG 百家乐','连胜天数：9 天','累计盈利：¥1,280,000','最高单日：¥310,000']},
+ {t:'福彩3D六日连捷再创新高 财神***累计盈利可观',d:'09/01',
+  body:['用户 财神*** 在福彩 3D 玩法中六日连续中奖，展现出稳定的选号策略。','平台在此向该用户表示祝贺，也提醒所有用户理性投注、量力而行。'],
+  h4:'战绩概览',li:['游戏项目：福彩 3D','连中天数：6 天','累计盈利：¥862,400','主力玩法：三星直选']},
+ {t:'AG百家乐表现持续走高 未了***单日大幅盈利',d:'08/31',
+  body:['用户 未了*** 于 8 月 31 日在 AG 百家乐单日实现大额盈利。','该用户投注风格稳健，长期保持良好的资金管理习惯。'],
+  h4:'战绩概览',li:['游戏项目：AG 百家乐','单日盈利：¥310,000','投注局数：186 局','胜率：约 58%']},
+ {t:'优游11选5任选五持续走高 财神***再度上榜',d:'08/30',
+  body:['用户 财神*** 在优游 11 选 5 任选五玩法中再次取得优异成绩，成功登上本周排行榜。','恭喜上榜用户，期待更多精彩表现。'],
+  h4:'战绩概览',li:['游戏项目：优游 11 选 5','玩法：任选五','单日盈利：¥197,638','上榜次数：本月第 3 次']}
+];
+const winData=[
+ [['zh***88','AG百家乐','1,280,000','14:32'],['ro***旭','福彩3D','862,400','13:18'],['sa***ah','优游分分彩','540,000','12:05'],['li***ng','11选5','320,000','11:47'],['wa***er','PK10','197,638','10:22'],['ch***99','快三','156,200','09:58'],['ye***21','六合彩','128,900','09:14'],['mi***ao','AG捕鱼','96,500','08:41'],['fu***66','时时彩','82,300','08:07'],['ta***ng','电子游戏','67,800','07:33']],
+ [['未了***','AG百家乐','4,286,000','周三'],['财神***','福彩3D','2,914,600','周二'],['zh***88','优游分分彩','1,682,000','周四'],['lu***ky','11选5','1,204,500','周一'],['dr***gn','PK10','986,300','周五'],['ki***23','快三','742,100','周三'],['st***ar','六合彩','618,400','周二'],['go***ld','AG捕鱼','512,700','周四'],['si***er','时时彩','438,900','周一'],['br***ze','电子游戏','367,200','周五']],
+ [['未了***','AG百家乐','18,642,000','08/28'],['财神***','福彩3D','12,308,500','08/24'],['zh***88','优游分分彩','9,876,400','08/30'],['ro***旭','11选5','7,412,900','08/19'],['lu***ky','PK10','6,285,300','08/26'],['dr***gn','快三','5,104,700','08/21'],['ki***23','六合彩','4,318,200','08/17'],['st***ar','AG捕鱼','3,762,600','08/29'],['go***ld','时时彩','2,948,100','08/13'],['si***er','电子游戏','2,105,400','08/25']]
+];
+let noticeTab=0;
+function renderNotice(){const box=document.getElementById('noticeList');
+  box.innerHTML=noticeTab===0
+   ?notices.map((n,i)=>'<div class="ni" onclick="openNotice('+i+')"><span class="tx">'+n.t+'</span><span class="dt">'+n.d+'</span></div>').join('')
+   :winData[0].slice(0,6).map((w,i)=>'<div class="ni" onclick="go(\'winners\')"><span class="tx">'+(i+1)+'. '+w[0]+' · '+w[1]+'</span><span class="dt" style="color:#F4511E;font-weight:600">¥'+w[2]+'</span></div>').join('')}
+function swNotice(i){sfx('click');noticeTab=i;
+  document.getElementById('ntab0').classList.toggle('on',i===0);
+  document.getElementById('ntab1').classList.toggle('on',i===1);renderNotice()}
+renderNotice();
+function openNotice(i){sfx('click');const n=notices[i];
+  document.getElementById('noticeDetail').innerHTML=
+   '<div class="ndt">'+n.t+'</div><div class="ndm">发布时间：2026-'+n.d.replace('/','-')+' · 优游国际运营团队</div>'+
+   '<div class="ndb">'+n.body.map(p=>'<p>'+p+'</p>').join('')+
+   '<h4>'+n.h4+'</h4><ul>'+n.li.map(l=>'<li>'+l+'</li>').join('')+'</ul>'+
+   '<p style="color:#90a4ae;font-size:12px;margin-top:20px">如有疑问，请联系 7×24 小时在线客服。</p></div>';
+  go('notice')}
+function renderWin(t){document.getElementById('winBody').innerHTML=winData[t].map((w,i)=>
+  '<tr><td><div class="wrk '+(i===0?'rk1':i===1?'rk2':i===2?'rk3':'rkn')+'">'+(i+1)+'</div></td>'+
+  '<td>'+w[0]+'</td><td>'+w[1]+'</td><td class="wam">¥'+w[2]+'</td><td>'+w[3]+'</td></tr>').join('')}
+function swWin(el,t){sfx('click');[...el.parentNode.children].forEach(d=>d.classList.remove('on'));el.classList.add('on');renderWin(t)}
+renderWin(0);
+
+const actCats=['ALL','限时','新人','日常','VIP','彩票','骰宝','棋牌','电子','捕鱼','体育'];
+let actCat='ALL';
+function renderActSide(){document.getElementById('actSide').innerHTML=actCats.map(c=>
+  '<div class="'+(c===actCat?'on':'')+'" onclick="pickCat(\''+c+'\')">'+c+'</div>').join('')}
+function renderActGrid(){
+  const list=actCat==='ALL'?acts:acts.filter(a=>a.cat===actCat);
+  document.getElementById('actGrid').innerHTML=list.length?list.map(a=>{const i=acts.indexOf(a);
+    return '<div class="actc" onclick="openAct('+i+')"><div class="actv" style="background:'+a.bg+'">'+
+      '<div class="at1">'+a.t1+'<em>'+a.t2+'</em></div></div>'+
+      '<div class="actb"><div class="actn">'+a.n+'</div><div class="actt">活动时间：'+a.t+'</div></div></div>'}).join('')
+   :'<div style="grid-column:1/-1;text-align:center;padding:50px;color:#90a4ae;font-size:13px">该分类暂无进行中的活动</div>'}
+function pickCat(c){sfx('click');actCat=c;renderActSide();renderActGrid()}
+renderActSide();renderActGrid();
+function openAct(i){sfx('click');const a=acts[i];
+  document.getElementById('adTitle').textContent=a.n;
+  document.getElementById('adContent').innerHTML=
+   '<div class="adhero" style="background:'+a.bg+'"><div class="h1">'+a.t1+'</div><div class="h2">'+a.t2+'</div><div class="h3">活动时间：'+a.t+'</div></div>'+
+   '<div class="adbody">'+
+   '<div class="adsec"><h3>活动对象</h3><p>优游国际全体注册会员（部分活动仅限指定用户群体，详见活动细则）。</p></div>'+
+   '<div class="adsec"><h3>奖励详情</h3><table class="adtb"><tr><th>'+a.th[0]+'</th><th>'+a.th[1]+'</th></tr>'+
+   a.table.map(r=>'<tr><td>'+r[0]+'</td><td><b>'+r[1]+'</b></td></tr>').join('')+'</table></div>'+
+   '<div class="adsec"><h3>活动细则</h3><ul>'+a.rules.map(r=>'<li>'+r+'</li>').join('')+'</ul></div>'+
+   '<div class="adsec"><h3>温馨提示</h3><ul><li>本活动最终解释权归优游国际所有</li>'+
+   '<li>如发现任何用户以不正当手段套取活动优惠，平台有权取消其领奖资格并冻结账户</li>'+
+   '<li>如有疑问，请联系 7×24 小时在线客服</li></ul></div>'+
+   '<button class="adjoin" onclick="joinAct()">立即参与</button></div>';
+  go('actdetail')}
+function joinAct(){sfx('bet');toast('已成功参与活动')}
+
+const helpData=[
+ {g:'常见问题',subs:['充提问题','游戏问题','平台相关','手机版问题'],content:{
+  '充提问题':[
+   {q:'充值上下限是多少？',li:['单笔最低：<b>100 元</b>','单笔最高：依各充值渠道而异','超过 1 万元充值建议使用 USDT 渠道']},
+   {q:'平台充值与提现方式',li:['充值渠道：USDT、网银转账、支付宝、微信、数字人民币、ToPay、K豆钱包、银联快捷、银联扫码、云闪付','提现渠道：USDT、银行卡、支付宝、微信、数字人民币、ToPay、K豆钱包','服务时间：充提现服务均为 <b>24 小时全天候</b>提供']},
+   {q:'充值规定须知',li:['每次充值前须先在平台发起充值申请，再进行汇款','汇款后请妥善保留汇款回执单，以便未到账时提供给客服处理','平台不支持信用卡付款']},
+   {q:'提现信息绑定注意事项',li:['绑定的银行卡号、开户姓名与银行信息需完全正确才可提现成功','首次使用 USDT 提现前，需有银行卡/支付宝/微信/数字人民币任一种成功提现记录']},
+   {q:'银行卡绑定问题',li:['该卡已被其他账号使用：平台规定一张卡仅能绑定一个账号，请使用其他同名银行卡','刚修改过开户姓名：为安全考虑，修改姓名后暂时无法立即绑卡，请稍候再试','若需删除错误绑定的银行卡，请尽快联系在线客服协助']},
+   {q:'提现金额不一致说明',li:['为保障您账户安全，平台可能将一次提现金额拆分为多笔入账','请于网银明细中核对实际到账总金额，若有疑问请立即联系客服处理']}],
+  '游戏问题':[
+   {q:'游戏无法进入怎么办？',li:['请先确认网络连接是否稳定','尝试清除浏览器缓存后重新登录','如仍无法进入，可能该游戏正在维护，请查看平台公告','以上方式均无效时请联系在线客服']},
+   {q:'游戏中途掉线，注单如何处理？',li:['已确认的注单会正常结算，不受掉线影响','未确认的注单将自动取消并退回本金','重新登录后可在「今日投注」中查询注单状态']},
+   {q:'开奖结果在哪里查看？',li:['彩票类游戏可在投注页右侧「开奖信息」查看','历史开奖记录支持查询近 90 天数据','所有开奖数据均来自第三方权威奖源，公开透明']}],
+  '平台相关':[
+   {q:'账号安全建议',li:['请勿将账号密码告知任何人，包括自称客服的人员','建议定期修改登录密码，并设置资金密码','绑定手机号与邮箱，便于账号找回','请勿在公共设备上保存登录状态']},
+   {q:'忘记密码怎么办？',li:['可通过登录页「忘记密码」使用绑定手机号或邮箱重置','如绑定信息已失效，请联系在线客服进行身份核实','核实通过后客服将协助重置密码']},
+   {q:'VIP 等级如何提升？',li:['VIP 等级依据累计有效投注额自动升级','达标后系统于次日 00:00 自动升级并派发升级礼金','等级享永久保级，不会因投注减少而降级']}],
+  '手机版问题':[
+   {q:'APP 下载与安装',li:['iOS 用户：下载后需在「设置 → 通用 → VPN与设备管理」中信任企业证书','Android 用户：安装时需允许「未知来源应用」权限','请务必通过平台官方渠道下载，谨防第三方仿冒程序']},
+   {q:'APP 无法打开或闪退',li:['请确认已安装最新版本，旧版本可能不兼容','尝试卸载后重新安装','清理设备存储空间后再试','如仍有问题请联系客服并提供设备型号与系统版本']}]}},
+ {g:'彩票投注',subs:['玩法说明','开奖规则','注单查询'],content:{
+  '玩法说明':[{q:'常见彩票玩法',li:['<b>直选</b>：数字与位置都需完全匹配','<b>组选</b>：只需数字匹配，顺序不限','<b>不定位</b>：所选数字出现在指定区间任意位置即中','<b>大小单双</b>：对开奖号码属性进行投注']}],
+  '开奖规则':[{q:'开奖来源与频率',li:['所有开奖数据均来自第三方权威奖源网','分分彩每 1 分钟开奖一期，全天 1440 期','开奖结果一经公布不可更改，请以平台显示为准']}],
+  '注单查询':[{q:'如何查询历史注单',li:['投注页右侧点击「今日投注」查看当日注单','账户中心「投注记录」可查询近 90 天注单','注单状态分为：待开奖、已中奖、未中奖、已撤单']}]}},
+ {g:'体育投注',subs:['盘口说明','串关规则','结算规则'],content:{
+  '盘口说明':[{q:'常见盘口类型',li:['<b>让球盘</b>：强队让弱队一定球数后比较结果','<b>大小盘</b>：预测双方总进球数高于或低于盘口','<b>独赢盘</b>：直接预测比赛胜负结果']}],
+  '串关规则':[{q:'串关如何计算',li:['串关需所有场次全部命中方可获胜','赔率为各场次赔率相乘','任一场次走盘时，该场按 1.0 赔率计算','取消或延期场次不计入串关数']}],
+  '结算规则':[{q:'注单何时结算',li:['一般于比赛结束后 30 分钟内完成结算','部分赛事因官方数据延迟可能顺延','如比赛中断超过 24 小时未恢复，注单将全额退回']}]}},
+ {g:'充值提现',subs:['充值流程','提现流程','到账时间'],content:{
+  '充值流程':[{q:'如何充值',li:['登录后点击「充值」进入充值页面','选择充值渠道并填写充值金额','按页面提示完成汇款','保留汇款凭证，如未到账可提供给客服']}],
+  '提现流程':[{q:'如何提现',li:['确认账户已完成实名认证并绑定收款方式','点击「提现」填写提现金额与资金密码','提交后等待审核，审核通过即自动出款','首次提现需完成一定流水要求']}],
+  '到账时间':[{q:'各渠道到账时间',li:['USDT：一般 5-30 分钟','银行卡：一般 5 分钟 - 2 小时','支付宝 / 微信：一般 5-20 分钟','遇银行系统维护或高峰期可能延迟']}]}},
+ {g:'安装帮助',subs:['电脑版','iOS版','Android版'],content:{
+  '电脑版':[{q:'电脑客户端安装',li:['下载安装包后解压','运行安装程序，按提示完成安装','支持 Windows 10 / 11 系统','如被杀毒软件拦截，请添加信任后重试']}],
+  'iOS版':[{q:'iPhone 安装步骤',li:['使用 Safari 浏览器打开下载页面','点击下载并确认安装','前往「设置 → 通用 → VPN与设备管理」','找到对应描述文件并点击「信任」']}],
+  'Android版':[{q:'Android 安装步骤',li:['下载 APK 安装包','点击安装包，允许「安装未知应用」权限','等待安装完成后即可打开使用','建议关闭系统自动更新以免影响使用']}]}},
+ {g:'关于优游',subs:['平台简介','资质执照','责任博彩'],content:{
+  '平台简介':[{q:'关于优游国际',li:['优游国际成立于 2008 年，是亚洲较早专注于线上彩票领域的平台之一','运营至今已超过 16 年，累计注册用户突破 1000 万','平台提供彩票、棋牌、真人、电子、捕鱼、体育等多元游戏']}],
+  '资质执照':[{q:'合规经营',li:['平台持有菲律宾 PAGCOR 正规经营执照','所有游戏数据接入第三方公证机构监督','严格遵守当地法律法规运营']}],
+  '责任博彩':[{q:'理性游戏提醒',li:['博彩应作为娱乐方式，而非收入来源','请设定合理的时间与金额上限','未满 18 周岁人士严禁参与','如感到无法自控，请及时寻求专业机构协助']}]}}
+];
+let hOpen=0,hSub='充提问题';
+function renderHelpSide(){document.getElementById('helpSide').innerHTML=helpData.map((g,i)=>
+  '<div class="hgrp"><div class="hgt '+(i===hOpen?'act':'')+'" onclick="toggleHelp('+i+')">'+g.g+'<span style="font-size:11px">'+(i===hOpen?'▲':'▼')+'</span></div>'+
+  '<div class="hsub '+(i===hOpen?'open':'')+'">'+g.subs.map(s=>
+   '<div class="'+(s===hSub?'on':'')+'" onclick="pickHelp('+i+',\''+s+'\',event)">'+s+'</div>').join('')+'</div></div>').join('')}
+function renderHelpMain(){const g=helpData[hOpen],items=g.content[hSub]||[];
+  document.getElementById('helpMain').innerHTML=items.map(it=>
+   '<div class="hq"><div class="qt"><span class="qi">?</span>'+it.q+'</div><ul>'+
+   it.li.map(l=>'<li>'+l+'</li>').join('')+'</ul></div>').join('')}
+function toggleHelp(i){sfx('click');hOpen=i;hSub=helpData[i].subs[0];renderHelpSide();renderHelpMain()}
+function pickHelp(i,s,e){e.stopPropagation();sfx('click');hOpen=i;hSub=s;renderHelpSide();renderHelpMain()}
+renderHelpSide();renderHelpMain();
+
+function openDl(){sfx('click');document.getElementById('dlMask').classList.add('open');
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('on'));
+  document.getElementById('bn-dl').classList.add('on')}
+function closeDl(){sfx('click');document.getElementById('dlMask').classList.remove('open')}
+
+const csReply={'如何充值？':'请登录后点击页面「充值」按钮，选择合适的充值渠道，填写金额并按提示完成汇款即可。充值服务 24 小时全天候提供。',
+'提现多久到账？':'一般情况下：USDT 约 5-30 分钟，银行卡约 5 分钟-2 小时，支付宝/微信约 5-20 分钟。如遇银行维护可能延迟。',
+'忘记密码怎么办？':'可通过登录页「忘记密码」使用绑定的手机号或邮箱重置。如绑定信息已失效，请提供账号与身份信息，我方将协助核实处理。',
+'如何绑定银行卡？':'进入账户中心「银行卡管理」，填写完整的银行卡号、开户姓名与开户行信息。请注意一张卡仅能绑定一个账号。',
+'活动怎么参加？':'点击底部「活动」进入活动列表，选择感兴趣的活动查看详情，符合条件后点击「立即参与」即可。'};
+function csAsk(q){sfx('click');addCs(q,true);
+  setTimeout(()=>addCs(csReply[q]||'感谢您的咨询，客服正在为您查询，请稍候…',false),700)}
+function csSend(){const i=document.getElementById('csInput'),v=i.value.trim();if(!v)return;
+  sfx('click');addCs(v,true);i.value='';
+  setTimeout(()=>addCs('感谢您的咨询，客服正在为您查询，请稍候…',false),700)}
+function addCs(txt,mine){const b=document.getElementById('csBody');
+  const d=document.createElement('div');d.className='csmsg';
+  if(mine)d.style.cssText='margin-left:auto;background:#1E88E5';
+  d.innerHTML='<p style="'+(mine?'color:#fff':'color:#546e7a')+'">'+txt+'</p>';
+  b.appendChild(d);b.scrollTop=b.scrollHeight}
+
+/* ===== 彩票投注页：全部操作使用选号音 ===== */
+const plays=['趣味','一星','后二','前二','后三','中三','前三','后四','前四','五星','大小单双','龙虎','不定位胆','任选'];
+document.getElementById('playTabs').innerHTML=plays.map((p,i)=>'<div class="'+(i===4?'on':'')+'" onclick="swp(this)">'+p+'</div>').join('');
+const rowsL=['百位','十位','个位'],cts=[[2,10,14,11,0,23,5,1,4,3],[3,2,15,24,9,14,0,16,1,6],[2,13,4,9,11,28,0,1,7,14]];
+document.getElementById('numRows').innerHTML=rowsL.map((rn,ri)=>{
+  const b=Array.from({length:10},(_,n)=>'<div class="nbl'+(cts[ri][n]>=14?' ht':'')+'" onclick="pk(this)"><div class="n">'+n+'</div><div class="c">'+cts[ri][n]+'</div></div>').join('');
+  return '<div class="nrow"><div class="rl">'+rn+'</div>'+b+
+   '<div class="qb"><span onclick="qAll(this)">全</span><span onclick="qOdd(this)">奇</span><span onclick="qBig(this)">大</span><span onclick="qEven(this)">偶</span><span onclick="qSmall(this)">小</span><span onclick="clrRow(this)">清</span></div></div>'}).join('');
+
+function swm(e){sfx('select');[...e.parentNode.children].forEach(d=>d.classList.remove('on'));e.classList.add('on')}
+function swp(e){sfx('select');[...e.parentNode.children].forEach(d=>d.classList.remove('on'));e.classList.add('on')}
+function swu(e){sfx('select');[...e.parentNode.querySelectorAll('span:not(.lbl)')].forEach(s=>s.classList.remove('on'));e.classList.add('on')}
+function pk(e){sfx('select');e.classList.toggle('sel');upd()}
+function qAll(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach(b=>b.classList.add('sel'));upd()}
+function qOdd(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach((b,i)=>b.classList.toggle('sel',i%2===1));upd()}
+function qEven(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach((b,i)=>b.classList.toggle('sel',i%2===0));upd()}
+function qBig(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach((b,i)=>b.classList.toggle('sel',i>=5));upd()}
+function qSmall(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach((b,i)=>b.classList.toggle('sel',i<5));upd()}
+function clrRow(e){sfx('select');e.closest('.nrow').querySelectorAll('.nbl').forEach(b=>b.classList.remove('sel'));upd()}
+function upd(){let p=1,any=false;
+  document.querySelectorAll('.nrow').forEach(r=>{const n=r.querySelectorAll('.nbl.sel').length;if(n)any=true;p*=n});
+  const bets=any?p:0,m=+document.getElementById('mtv').value||1;
+  document.getElementById('sc').textContent=bets;document.getElementById('ta').textContent=(bets*2*m).toFixed(2)}
+function cmt(d){sfx('select');const i=document.getElementById('mtv');i.value=Math.max(1,+i.value+d);upd()}
+function doBet(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}
+  sfx('bet');toast('投注成功，共 '+n+' 注');
+  setTimeout(()=>{sfx('win');toast('恭喜中奖！')},1300)}
+function addCart(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}sfx('bet');toast('已添加至购彩篮')}
+let sec=58;setInterval(()=>{sec--;if(sec<0)sec=59;document.getElementById('tmr').textContent='00:00:'+String(sec).padStart(2,'0')},1000);
+
+function mkRooms(id,list){document.getElementById(id).innerHTML=list.map(r=>
+  '<div class="rcd" onclick="sfx(\'click\');toast(\''+r.n+' 加载中（演示）\')">'+
+  '<div class="rcv" style="background:linear-gradient(135deg,'+r.c1+','+r.c2+')">'+r.ic+'<span class="lv">'+r.lv+'</span></div>'+
+  '<div class="rcb"><div class="rcn">'+r.n+'</div><div class="rcs"><span>'+r.s+'</span><span class="on2">'+r.p+' 人</span></div></div></div>').join('')}
+mkRooms('chessRooms',[
+ {ic:'🀄',n:'经典麻将',s:'国标规则',p:1284,lv:'热门',c1:'#EF5350',c2:'#C62828'},
+ {ic:'♠',n:'德州扑克',s:'无限注',p:892,lv:'高手',c1:'#5C6BC0',c2:'#283593'},
+ {ic:'🎴',n:'斗地主',s:'经典玩法',p:2140,lv:'热门',c1:'#66BB6A',c2:'#2E7D32'},
+ {ic:'🎲',n:'炸金花',s:'快速对局',p:756,lv:'刺激',c1:'#FFA726',c2:'#EF6C00'},
+ {ic:'♟',n:'中国象棋',s:'对弈',p:432,lv:'休闲',c1:'#8D6E63',c2:'#4E342E'},
+ {ic:'🃏',n:'21点',s:'Blackjack',p:1105,lv:'经典',c1:'#26A69A',c2:'#00695C'},
+ {ic:'🎯',n:'牛牛',s:'多人对战',p:1876,lv:'热门',c1:'#AB47BC',c2:'#6A1B9A'},
+ {ic:'🀄',n:'四川麻将',s:'血战到底',p:964,lv:'地方',c1:'#EC407A',c2:'#AD1457'}]);
+mkRooms('liveRooms',[
+ {ic:'🎰',n:'百家乐 A01',s:'荷官 Amy',p:326,lv:'VIP',c1:'#2E7D32',c2:'#1B5E20'},
+ {ic:'🎰',n:'百家乐 A02',s:'荷官 Lisa',p:284,lv:'普通',c1:'#388E3C',c2:'#1B5E20'},
+ {ic:'🎲',n:'骰宝 B01',s:'荷官 Nina',p:198,lv:'普通',c1:'#1976D2',c2:'#0D47A1'},
+ {ic:'🎡',n:'轮盘 C01',s:'欧洲轮盘',p:156,lv:'VIP',c1:'#C62828',c2:'#8E0000'},
+ {ic:'🐉',n:'龙虎斗 D01',s:'快速开局',p:412,lv:'热门',c1:'#F57C00',c2:'#E65100'},
+ {ic:'🃏',n:'21点 E01',s:'荷官 Kate',p:167,lv:'普通',c1:'#00838F',c2:'#006064'},
+ {ic:'🎰',n:'百家乐 A03',s:'荷官 Emma',p:301,lv:'高额',c1:'#6A1B9A',c2:'#4A148C'},
+ {ic:'🎲',n:'骰宝 B02',s:'荷官 Sara',p:143,lv:'普通',c1:'#455A64',c2:'#263238'}]);
+mkRooms('slotRooms',[
+ {ic:'7️⃣',n:'幸运777',s:'经典三轴',p:2304,lv:'HOT',c1:'#E53935',c2:'#B71C1C'},
+ {ic:'💎',n:'钻石帝国',s:'五轴多线',p:1876,lv:'HOT',c1:'#42A5F5',c2:'#1565C0'},
+ {ic:'🍀',n:'幸运四叶草',s:'免费旋转',p:1234,lv:'NEW',c1:'#66BB6A',c2:'#2E7D32'},
+ {ic:'👑',n:'黄金帝王',s:'高倍爆分',p:986,lv:'高倍',c1:'#FFA726',c2:'#EF6C00'},
+ {ic:'🔥',n:'烈焰狂欢',s:'连线消除',p:1543,lv:'HOT',c1:'#FF7043',c2:'#D84315'},
+ {ic:'🌟',n:'星辰传奇',s:'累积奖池',p:2109,lv:'奖池',c1:'#7E57C2',c2:'#4527A0'},
+ {ic:'🎪',n:'嘉年华',s:'趣味主题',p:743,lv:'休闲',c1:'#EC407A',c2:'#AD1457'},
+ {ic:'⚡',n:'雷霆万钧',s:'极速转轮',p:1321,lv:'刺激',c1:'#26C6DA',c2:'#00838F'}]);
+mkRooms('fishRooms',[
+ {ic:'🐟',n:'欢乐捕鱼',s:'新手入门',p:1654,lv:'新手',c1:'#29B6F6',c2:'#0277BD'},
+ {ic:'🦈',n:'深海狂鲨',s:'高倍爆率',p:2143,lv:'HOT',c1:'#0288D1',c2:'#01579B'},
+ {ic:'🐠',n:'海底世界',s:'休闲模式',p:876,lv:'休闲',c1:'#26C6DA',c2:'#00838F'},
+ {ic:'🐙',n:'章鱼帝国',s:'BOSS挑战',p:1432,lv:'挑战',c1:'#7E57C2',c2:'#4527A0'},
+ {ic:'🦑',n:'巨兽来袭',s:'超高倍率',p:1198,lv:'高倍',c1:'#EF5350',c2:'#C62828'},
+ {ic:'🐡',n:'河豚乐园',s:'轻松上手',p:654,lv:'新手',c1:'#FFA726',c2:'#EF6C00'},
+ {ic:'🦞',n:'龙虾传说',s:'团队作战',p:987,lv:'组队',c1:'#EC407A',c2:'#AD1457'},
+ {ic:'🐳',n:'蓝鲸奇缘',s:'累积奖池',p:1765,lv:'奖池',c1:'#5C6BC0',c2:'#283593'}]);
+mkRooms('sportRooms',[
+ {ic:'⚽',n:'英超联赛',s:'滚球投注',p:3421,lv:'HOT',c1:'#43A047',c2:'#1B5E20'},
+ {ic:'🏀',n:'NBA',s:'即时盘口',p:2876,lv:'HOT',c1:'#FF7043',c2:'#D84315'},
+ {ic:'🎾',n:'网球公开赛',s:'实时赔率',p:876,lv:'热门',c1:'#9CCC65',c2:'#558B2F'},
+ {ic:'🏐',n:'排球联赛',s:'赛前投注',p:432,lv:'普通',c1:'#42A5F5',c2:'#1565C0'},
+ {ic:'⚾',n:'日本职棒',s:'滚球盘',p:654,lv:'热门',c1:'#EF5350',c2:'#C62828'},
+ {ic:'🏓',n:'乒乓球',s:'快速赛事',p:321,lv:'普通',c1:'#26A69A',c2:'#00695C'},
+ {ic:'🥊',n:'拳击格斗',s:'重大赛事',p:1098,lv:'HOT',c1:'#8D6E63',c2:'#4E342E'},
+ {ic:'🏎',n:'F1赛车',s:'冠军投注',p:765,lv:'特色',c1:'#5C6BC0',c2:'#283593'}]);
+
+(function(){const w=document.getElementById('vipHero');
+ for(let i=0;i<60;i++){const s=document.createElement('div');s.className='vipstar';
+  const sz=Math.random()*2+1;
+  s.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;opacity:'+(Math.random()*.6+.2);
+  w.appendChild(s)}})();
+
+restore().catch(e=>console.warn(e));
+</script>
+</body>
+</html>
