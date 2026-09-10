@@ -69,6 +69,10 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .srcbadge.ok{background:#dcfce7;color:#16a34a}
 .cloudtag{font-size:8.5px;color:#1565C0;background:#e3f2fd;padding:1px 5px;border-radius:3px;flex-shrink:0}
 .localtag{font-size:8.5px;color:#92400e;background:#fef3c7;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.rfbtn{width:22px;height:22px;border:1px solid #cbd5e1;background:#fff;border-radius:4px;cursor:pointer;color:#64748b;font-size:12px;line-height:1;padding:0}
+.rfbtn:hover{border-color:#1E88E5;color:#1E88E5}
+.rfbtn.spin{animation:rfsp .7s linear infinite}
+@keyframes rfsp{to{transform:rotate(360deg)}}
 .nav{background:#fff;height:60px;display:flex;align-items:center;padding:0 32px;gap:26px;box-shadow:0 1px 6px rgba(0,0,0,.05);position:sticky;top:0;z-index:99}
 .lg{display:flex;align-items:center;gap:8px;cursor:pointer}
 .lb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2196F3,#1565C0);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center}
@@ -325,7 +329,10 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
   <div class="ps">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
       <h3 style="margin:0">背景音乐</h3>
-      <span class="srcbadge" id="bgmSrc">加载中…</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="srcbadge" id="bgmSrc">加载中…</span>
+        <button class="rfbtn" onclick="reloadCloud()" title="重新扫描云端文件">↻</button>
+      </div>
     </div>
     <div class="bl" id="bgmList"><div class="et">加载中…</div></div>
     <label class="mu" style="margin-top:8px">＋ 临时添加 BGM（仅本机可见）<input type="file" accept="audio/*" multiple onchange="ldBgm(this)"></label>
@@ -346,8 +353,9 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <b style="color:#64748b">中奖音</b> — 投注后延迟 1.3 秒触发
     </p>
     <p style="font-size:11px;color:#94a3b8;line-height:1.9;margin-top:10px">
-      <span class="cloudtag">云端</span> 标记的文件所有人都能听到，由管理员在仓库中维护。<br>
-      <span class="localtag">本机</span> 标记的是你临时添加的，只在你自己的浏览器里，方便试听对比。
+      <span class="cloudtag">云端</span> 所有人可听，把音频丢进仓库对应文件夹即可，无需其他操作。<br>
+      <span class="localtag">本机</span> 只在你自己浏览器里，方便临时试听对比。<br>
+      管理员上传新文件后，点右上角 ↻ 按钮即可刷新。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
   </div>
@@ -552,8 +560,20 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 <div class="tst" id="tst"></div>
 
 <script>
-/* ===== 云端音频清单（GitHub 仓库自动读取）===== */
-const MANIFEST_URL='sounds/list.json';
+/* ===== 云端音频：GitHub API 自动扫描文件夹 ===== */
+const AUDIO_EXT=/\.(mp3|ogg|wav|m4a|aac|flac)$/i;
+const FOLDERS=['bgm','click','swipe','select','bet','win'];
+
+/* 从当前网址推断 GitHub 用户名与仓库名 */
+function ghInfo(){
+  const host=location.hostname;      // xxx.github.io
+  const path=location.pathname;      // /repo-name/ 或 /
+  if(!host.endsWith('github.io'))return null;
+  const owner=host.replace('.github.io','');
+  const seg=path.split('/').filter(Boolean);
+  const repo=seg.length?seg[0]:owner+'.github.io';
+  return {owner,repo};
+}
 
 /* ===== 音频：每槽位独立音效列表 ===== */
 const POOL={},B=[],ASSIGN={};
@@ -561,36 +581,76 @@ const BANK={click:[],swipe:[],select:[],bet:[],win:[]};
 let cur=null,bVol=.35,sVol=.7,db=null;
 const POOL_SIZE=4;
 
-/* 加载云端清单 */
+/* 扫描单个文件夹 */
+async function scanFolder(gh,folder){
+  const api='https://api.github.com/repos/'+gh.owner+'/'+gh.repo+'/contents/sounds/'+folder;
+  const r=await fetch(api);
+  if(!r.ok)return [];
+  const list=await r.json();
+  if(!Array.isArray(list))return [];
+  return list
+    .filter(x=>x.type==='file'&&AUDIO_EXT.test(x.name))
+    .map(x=>({name:x.name,url:x.download_url}));
+}
+
+/* 回退：读 list.json */
+async function loadManifest(){
+  try{
+    const r=await fetch('sounds/list.json?t='+Date.now());
+    if(!r.ok)return null;
+    return await r.json();
+  }catch(e){return null}
+}
+
+/* 加载云端音频 */
 async function loadCloud(){
   const badge=document.getElementById('bgmSrc');
-  try{
-    const r=await fetch(MANIFEST_URL+'?t='+Date.now());
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const m=await r.json();
-    // BGM
-    (m.bgm||[]).forEach(f=>{
-      B.push({id:'cloud_bgm_'+f,name:f.replace(/\.[^.]+$/,''),url:'sounds/bgm/'+f,cloud:true});
-    });
-    // 各槽位音效
-    ['click','swipe','select','bet','win'].forEach(k=>{
-      (m[k]||[]).forEach(f=>{
-        BANK[k].push({id:'cloud_'+k+'_'+f,name:f.replace(/\.[^.]+$/,''),url:'sounds/'+k+'/'+f,cloud:true});
+  badge.textContent='扫描中…';badge.className='srcbadge';
+  const gh=ghInfo();
+  let data={};let ok=false;
+
+  if(gh){
+    try{
+      const results=await Promise.all(FOLDERS.map(f=>scanFolder(gh,f)));
+      FOLDERS.forEach((f,i)=>data[f]=results[i]);
+      ok=FOLDERS.some(f=>data[f].length>0);
+    }catch(e){ok=false}
+  }
+
+  // API 失败或非 GitHub 环境 → 回退读 list.json
+  if(!ok){
+    const m=await loadManifest();
+    if(m){
+      FOLDERS.forEach(f=>{
+        data[f]=(m[f]||[]).map(n=>({name:n,url:'sounds/'+f+'/'+n}));
       });
-      // 默认选中第一个
-      if(BANK[k].length&&!ASSIGN[k]){
-        ASSIGN[k]=BANK[k][0].id;buildPool(k,BANK[k][0].url);
-      }
-    });
-    const total=(m.bgm||[]).length+['click','swipe','select','bet','win'].reduce((s,k)=>s+(m[k]||[]).length,0);
-    badge.textContent='云端 '+total+' 个文件';
-    badge.className='srcbadge ok';
-    return true;
-  }catch(e){
-    badge.textContent='本地模式';
+      ok=FOLDERS.some(f=>data[f].length>0);
+    }
+  }
+
+  if(!ok){
+    badge.textContent=gh?'云端 0 个文件':'本地模式';
     badge.className='srcbadge';
     return false;
   }
+
+  // 填充数据
+  (data.bgm||[]).forEach(f=>{
+    B.push({id:'cloud_bgm_'+f.name,name:f.name.replace(/\.[^.]+$/,''),url:f.url,cloud:true});
+  });
+  ['click','swipe','select','bet','win'].forEach(k=>{
+    (data[k]||[]).forEach(f=>{
+      BANK[k].push({id:'cloud_'+k+'_'+f.name,name:f.name.replace(/\.[^.]+$/,''),url:f.url,cloud:true});
+    });
+    if(BANK[k].length&&!ASSIGN[k]){
+      ASSIGN[k]=BANK[k][0].id;buildPool(k,BANK[k][0].url);
+    }
+  });
+
+  const total=FOLDERS.reduce((s,f)=>s+(data[f]||[]).length,0);
+  badge.textContent='云端 '+total+' 个文件';
+  badge.className='srcbadge ok';
+  return true;
 }
 const SLOTS=[
  {k:'click',n:'点击音'},
@@ -706,6 +766,34 @@ async function rmOne(k,i,e){
 }
 
 function saveAssign(){localStorage.setItem('ub8assign',JSON.stringify(ASSIGN))}
+
+/* 手动刷新云端文件列表 */
+async function reloadCloud(){
+  const btn=document.querySelector('.rfbtn');
+  btn.classList.add('spin');
+  // 只清云端项，保留本机项
+  const localB=B.filter(x=>!x.cloud);
+  B.length=0;
+  const localBank={};
+  Object.keys(BANK).forEach(k=>{localBank[k]=BANK[k].filter(x=>!x.cloud);BANK[k].length=0});
+  if(cur){cur.a.pause();cur=null}
+  await loadCloud();
+  // 把本机项加回去
+  localB.forEach(x=>B.push(x));
+  Object.keys(localBank).forEach(k=>localBank[k].forEach(x=>BANK[k].push(x)));
+  // 恢复选择
+  try{
+    const saved=JSON.parse(localStorage.getItem('ub8assign')||'{}');
+    Object.keys(saved).forEach(k=>{
+      if(!BANK[k])return;
+      const it=BANK[k].find(x=>x.id===saved[k]);
+      if(it){ASSIGN[k]=saved[k];buildPool(k,it.url)}
+    });
+  }catch(e){}
+  renderB();renderSlots();
+  btn.classList.remove('spin');
+  toast('已刷新云端文件');
+}
 
 function initDB(){return new Promise((r,j)=>{const q=indexedDB.open('ub8_snd3',1);
 q.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('a'))d.createObjectStore('a',{keyPath:'id'})};
