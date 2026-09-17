@@ -170,6 +170,64 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .godbtn.busy{background:linear-gradient(180deg,#8D6E63,#5D4037);border-color:rgba(255,213,79,.5)}
 .godtip{text-align:center;font-size:10.5px;color:rgba(255,243,196,.68);padding:0 15px 13px;
  position:relative;z-index:3;min-height:15px}
+
+/* ===== 充值 / 提现 ===== */
+.wal{max-width:560px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;
+ box-shadow:0 2px 14px rgba(0,0,0,.08)}
+.walhd{padding:20px 24px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.walhd.dep{background:linear-gradient(120deg,#1565C0,#42A5F5)}
+.walhd.wdr{background:linear-gradient(120deg,#00695C,#26A69A)}
+.walhd .t{font-size:17px;font-weight:600}
+.walhd .bal{text-align:right}
+.walhd .bal .lb2{font-size:10.5px;opacity:.8}
+.walhd .bal .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.walbd{padding:22px 24px}
+.wsec{margin-bottom:20px}
+.wsec .lb3{font-size:12px;color:#546e7a;margin-bottom:9px;font-weight:500}
+.chans{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.chan{padding:11px 6px;border:1px solid #e0e6eb;border-radius:6px;text-align:center;
+ cursor:pointer;font-size:11.5px;color:#546e7a;transition:all .14s}
+.chan:hover{border-color:#90caf9;background:#f5fbff}
+.chan.on{border-color:#1E88E5;background:#e3f2fd;color:#1565C0;font-weight:600}
+.chan .ci{font-size:17px;display:block;margin-bottom:4px}
+.amts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.amt{padding:10px 0;border:1px solid #e0e6eb;border-radius:6px;text-align:center;
+ cursor:pointer;font-size:13px;color:#37474f;font-weight:500;transition:all .14s}
+.amt:hover{border-color:#90caf9}
+.amt.on{border-color:#1E88E5;background:#e3f2fd;color:#1565C0}
+.aminp{display:flex;align-items:center;border:1px solid #e0e6eb;border-radius:6px;overflow:hidden}
+.aminp .pfx{padding:0 12px;font-size:15px;color:#90a4ae;background:#f8fafc;
+ align-self:stretch;display:flex;align-items:center}
+.aminp input{flex:1;border:none;outline:none;padding:11px 12px;font-size:16px;color:#263238;
+ font-variant-numeric:tabular-nums}
+.walbtn{width:100%;padding:13px 0;border:none;border-radius:7px;font-size:15px;
+ font-weight:600;color:#fff;cursor:pointer;letter-spacing:2px;margin-top:4px}
+.walbtn.dep{background:linear-gradient(135deg,#1E88E5,#1565C0);box-shadow:0 4px 12px rgba(30,136,229,.3)}
+.walbtn.wdr{background:linear-gradient(135deg,#26A69A,#00695C);box-shadow:0 4px 12px rgba(38,166,154,.3)}
+.walbtn:disabled{opacity:.5;cursor:default;box-shadow:none}
+.walnote{font-size:10.5px;color:#90a4ae;line-height:1.85;margin-top:14px;
+ padding-top:13px;border-top:1px solid #f1f5f9}
+
+/* 结果弹窗 */
+.resmask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1160;display:none;
+ align-items:center;justify-content:center;padding:20px}
+.resmask.open{display:flex}
+.resdlg{width:320px;background:#fff;border-radius:12px;padding:30px 26px 22px;text-align:center;
+ box-shadow:0 20px 50px rgba(0,0,0,.28);position:relative;overflow:hidden}
+.rescoins{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.rescoin{position:absolute;font-size:18px;top:-26px;animation:ingotfall linear forwards}
+.resic{width:62px;height:62px;border-radius:50%;margin:0 auto 14px;
+ display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;
+ animation:respop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes respop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.resic.dep{background:linear-gradient(135deg,#42A5F5,#1565C0);color:#fff}
+.resic.wdr{background:linear-gradient(135deg,#26A69A,#00695C);color:#fff}
+.restt{font-size:17px;font-weight:700;color:#263238;margin-bottom:7px;position:relative}
+.resam{font-size:28px;font-weight:800;color:#F4511E;margin-bottom:6px;
+ font-variant-numeric:tabular-nums;position:relative}
+.ressub{font-size:11.5px;color:#90a4ae;line-height:1.8;margin-bottom:18px;position:relative}
+.resbtn{width:100%;padding:11px 0;border:none;border-radius:6px;background:#1E88E5;color:#fff;
+ font-size:13.5px;cursor:pointer;position:relative}
 .nav{background:#fff;height:60px;display:flex;align-items:center;padding:0 32px;gap:26px;box-shadow:0 1px 6px rgba(0,0,0,.05);position:sticky;top:0;z-index:99}
 .lg{display:flex;align-items:center;gap:8px;cursor:pointer}
 .lb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2196F3,#1565C0);color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center}
@@ -413,6 +471,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .bni .l{font-size:10px;color:#78909c}
 .i1{background:#EC407A}.i2{background:#26A69A}.i3{background:#66BB6A}
 .i4{background:#26C6DA}.i5{background:#26A69A}.i6{background:#29B6F6}
+.i7{background:#42A5F5}.i8{background:#26A69A}
 .tst{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(30,41,59,.94);color:#fff;padding:11px 22px;border-radius:6px;font-size:12.5px;z-index:2000;opacity:0;pointer-events:none;transition:all .22s}
 .tst.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -449,7 +508,9 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <b style="color:#64748b">投注音</b> — 直接投注、添加购彩篮、参与活动<br>
       <b style="color:#64748b">中奖音</b> — 投注后延迟 1.3 秒触发<br>
       <b style="color:#64748b">财神殿BGM</b> — 打开财神殿时播放，关闭弹窗即停止<br>
-      <b style="color:#64748b">敬香BGM</b> — 点击敬香时播放，关闭弹窗即停止
+      <b style="color:#64748b">敬香BGM</b> — 点击敬香时播放，关闭弹窗即停止<br>
+      <b style="color:#64748b">充值到账BGM</b> — 充值成功弹窗出现时播放<br>
+      <b style="color:#64748b">提现BGM</b> — 提现申请成功弹窗出现时播放
     </p>
     <p style="font-size:11px;color:#94a3b8;line-height:1.9;margin-top:10px">
       <span class="cloudtag">云端</span> 所有人可听，把音频丢进仓库对应文件夹即可，无需其他操作。<br>
@@ -647,6 +708,69 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
   </div>
 </div>
 
+<div class="pg2" id="p-deposit"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>充值</h1></div>
+  <div class="wal">
+    <div class="walhd dep">
+      <div class="t">账户充值</div>
+      <div class="bal"><div class="lb2">当前余额</div><div class="v" id="balD">¥ 2,000.38</div></div>
+    </div>
+    <div class="walbd">
+      <div class="wsec">
+        <div class="lb3">充值方式</div>
+        <div class="chans" id="depChans"></div>
+      </div>
+      <div class="wsec">
+        <div class="lb3">充值金额</div>
+        <div class="amts" id="depAmts"></div>
+        <div class="aminp"><span class="pfx">¥</span><input id="depVal" type="number" placeholder="请输入充值金额" oninput="onAmtInput('dep')"></div>
+      </div>
+      <button class="walbtn dep" id="depBtn" onclick="doDeposit()">确认充值</button>
+      <div class="walnote">
+        单笔最低 100 元，充值服务 24 小时全天候提供。<br>
+        请通过官方渠道汇款，并保留汇款凭证以便核对。
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="pg2" id="p-withdraw"><div class="wrap">
+  <div class="ph2"><button class="bk" onclick="go('lobby')">← 返回大厅</button><h1>提现</h1></div>
+  <div class="wal">
+    <div class="walhd wdr">
+      <div class="t">账户提现</div>
+      <div class="bal"><div class="lb2">可提现余额</div><div class="v" id="balW">¥ 2,000.38</div></div>
+    </div>
+    <div class="walbd">
+      <div class="wsec">
+        <div class="lb3">提现方式</div>
+        <div class="chans" id="wdrChans"></div>
+      </div>
+      <div class="wsec">
+        <div class="lb3">提现金额</div>
+        <div class="amts" id="wdrAmts"></div>
+        <div class="aminp"><span class="pfx">¥</span><input id="wdrVal" type="number" placeholder="请输入提现金额" oninput="onAmtInput('wdr')"></div>
+      </div>
+      <button class="walbtn wdr" id="wdrBtn" onclick="doWithdraw()">确认提现</button>
+      <div class="walnote">
+        USDT 约 5-30 分钟到账，银行卡约 5 分钟-2 小时。<br>
+        请确认收款信息填写完整正确，以免影响到账。
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="resmask" id="resMask" onclick="if(event.target===this)closeRes()">
+  <div class="resdlg">
+    <div class="rescoins" id="resCoins"></div>
+    <div class="resic" id="resIc">✓</div>
+    <div class="restt" id="resTt">充值成功</div>
+    <div class="resam" id="resAm">¥ 0</div>
+    <div class="ressub" id="resSub"></div>
+    <button class="resbtn" onclick="closeRes()">知道了</button>
+  </div>
+</div>
+
 <button class="godfab" onclick="openGod()" title="财神殿">财</button>
 
 <div class="godmask" id="godMask" onclick="if(event.target===this)closeGod()">
@@ -678,6 +802,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 
 <div class="bn">
   <div class="bni on" id="bn-lobby" onclick="go('lobby')"><div class="bnc i1">⌂</div><div class="l">大厅</div></div>
+  <div class="bni" id="bn-deposit" onclick="go('deposit')"><div class="bnc i7">￥</div><div class="l">充值</div></div>
+  <div class="bni" id="bn-withdraw" onclick="go('withdraw')"><div class="bnc i8">↗</div><div class="l">提现</div></div>
   <div class="bni" id="bn-activity" onclick="go('activity')"><div class="bnc i2">▦</div><div class="l">活动</div></div>
   <div class="bni" id="bn-help" onclick="go('help')"><div class="bnc i3">?</div><div class="l">帮助</div></div>
   <div class="bni" id="bn-dl" onclick="openDl()"><div class="bnc i4">⇩</div><div class="l">下载</div></div>
@@ -690,7 +816,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 <script>
 /* ===== 云端音频：GitHub API 自动扫描文件夹 ===== */
 const AUDIO_EXT=/\.(mp3|ogg|wav|m4a|aac|flac)$/i;
-const FOLDERS=['bgm','click','swipe','select','bet','win','laugh','ingot'];
+const FOLDERS=['bgm','click','swipe','select','bet','win','laugh','ingot','deposit','withdraw'];
 
 /* 从当前网址推断 GitHub 用户名与仓库名 */
 function ghInfo(){
@@ -705,7 +831,7 @@ function ghInfo(){
 
 /* ===== 音频：每槽位独立音效列表 ===== */
 const POOL={},B=[],ASSIGN={};
-const BANK={click:[],swipe:[],select:[],bet:[],win:[],laugh:[],ingot:[]};
+const BANK={click:[],swipe:[],select:[],bet:[],win:[],laugh:[],ingot:[],deposit:[],withdraw:[]};
 let cur=null,bVol=.35,sVol=.7,db=null;
 const POOL_SIZE=4;
 
@@ -766,7 +892,7 @@ async function loadCloud(){
   (data.bgm||[]).forEach(f=>{
     B.push({id:'cloud_bgm_'+f.name,name:f.name.replace(/\.[^.]+$/,''),url:f.url,cloud:true});
   });
-  ['click','swipe','select','bet','win','laugh','ingot'].forEach(k=>{
+  ['click','swipe','select','bet','win','laugh','ingot','deposit','withdraw'].forEach(k=>{
     (data[k]||[]).forEach(f=>{
       BANK[k].push({id:'cloud_'+k+'_'+f.name,name:f.name.replace(/\.[^.]+$/,''),url:f.url,cloud:true});
     });
@@ -787,8 +913,12 @@ const SLOTS=[
  {k:'bet',n:'投注音'},
  {k:'win',n:'中奖音'},
  {k:'laugh',n:'财神殿BGM'},
- {k:'ingot',n:'敬香BGM'}
+ {k:'ingot',n:'敬香BGM'},
+ {k:'deposit',n:'充值到账BGM'},
+ {k:'withdraw',n:'提现BGM'}
 ];
+/* 长音频槽位：用独立实例播放，可停止 */
+const BGMSLOTS=['laugh','ingot','deposit','withdraw'];
 
 function buildPool(k,url){
   const arr=[];
@@ -808,14 +938,12 @@ function sfx(k){
   a.play().catch(()=>{});
 }
 function tsf(k){
-  // 财神殿两个 BGM 槽位：用独立实例播放，可再次点击停止
-  if(k==='laugh'||k==='ingot'){
-    const playing=(k==='laugh'?godAudio:incAudio);
-    if(playing){stopGodBgm(k);toast('已停止');return}
+  // 长音频槽位：独立实例播放，再点一次停止
+  if(BGMSLOTS.includes(k)){
+    if(SCENE[k]){stopGodBgm(k);renderSlots();toast('已停止');return}
     const a=playGodBgm(k);
     if(!a){toast('该槽位还没分配音效');return}
-    if(k==='laugh')godAudio=a;else incAudio=a;
-    a.onended=()=>{if(k==='laugh')godAudio=null;else incAudio=null};
+    renderSlots();
     return;
   }
   if(!POOL[k]){toast('该槽位还没分配音效');return}
@@ -876,7 +1004,7 @@ function pickOne(k,id){
   ASSIGN[k]=id;buildPool(k,it.url);
   saveAssign();renderSlots();
   toast(SLOTS.find(s=>s.k===k).n+' → '+it.name);
-  if(k!=='laugh'&&k!=='ingot')setTimeout(()=>sfx(k),120);
+  if(!BGMSLOTS.includes(k))setTimeout(()=>sfx(k),120);
 }
 
 /* 上传文件到指定槽位 */
@@ -1006,12 +1134,11 @@ async function clrAll(){if(!confirm('清空本机临时添加的音频？（云�
 function sbv(v){bVol=v/100;document.getElementById('bv').textContent=v+'%';if(cur)cur.a.volume=bVol;localStorage.setItem('ub8bv3',v)}
 function ssv(v){sVol=v/100;document.getElementById('sv').textContent=v+'%';
   Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));
-  if(typeof godAudio!=='undefined'&&godAudio)godAudio.volume=sVol;
-  if(typeof incAudio!=='undefined'&&incAudio)incAudio.volume=sVol;
+  if(typeof SCENE!=='undefined')Object.values(SCENE).forEach(a=>a.volume=sVol);
   localStorage.setItem('ub8sv3',v)}
 function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
-const bnMap={lobby:'bn-lobby',activity:'bn-activity',actdetail:'bn-activity',help:'bn-help',vip:'bn-vip',service:'bn-service'};
+const bnMap={lobby:'bn-lobby',deposit:'bn-deposit',withdraw:'bn-withdraw',activity:'bn-activity',actdetail:'bn-activity',help:'bn-help',vip:'bn-vip',service:'bn-service'};
 function go(p,el){sfx('click');
   document.querySelectorAll('.pg2').forEach(x=>x.classList.remove('on'));
   const t=document.getElementById('p-'+p);if(t)t.classList.add('on');
@@ -1361,10 +1488,124 @@ mkRooms('sportRooms',[
   s.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;opacity:'+(Math.random()*.6+.2);
   w.appendChild(s)}})();
 
-/* ===== 财神殿 ===== */
-let godBusy=false, godAudio=null, incAudio=null;
+/* ===== 充值 / 提现 ===== */
+let balance=2000.38;
+const depChans=[
+ {i:'₮',n:'USDT'},{i:'🏦',n:'网银转账'},{i:'💳',n:'银联快捷'},{i:'📱',n:'支付宝'},
+ {i:'💬',n:'微信'},{i:'🇨🇳',n:'数字人民币'},{i:'🔷',n:'ToPay'},{i:'🫘',n:'K豆钱包'}
+];
+const wdrChans=[
+ {i:'₮',n:'USDT'},{i:'💳',n:'银行卡'},{i:'📱',n:'支付宝'},{i:'💬',n:'微信'},
+ {i:'🇨🇳',n:'数字人民币'},{i:'🔷',n:'ToPay'},{i:'🫘',n:'K豆钱包'},{i:'🏧',n:'云闪付'}
+];
+const quickAmts=[100,500,1000,5000,10000,50000];
+let depChan=0,wdrChan=0;
 
-/* 播放财神殿场景 BGM（可被停止，区别于短音效） */
+function renderWallet(){
+  document.getElementById('depChans').innerHTML=depChans.map((c,i)=>
+    '<div class="chan'+(i===depChan?' on':'')+'" onclick="pickChan(\'dep\','+i+')">'+
+    '<span class="ci">'+c.i+'</span>'+c.n+'</div>').join('');
+  document.getElementById('wdrChans').innerHTML=wdrChans.map((c,i)=>
+    '<div class="chan'+(i===wdrChan?' on':'')+'" onclick="pickChan(\'wdr\','+i+')">'+
+    '<span class="ci">'+c.i+'</span>'+c.n+'</div>').join('');
+  ['dep','wdr'].forEach(t=>{
+    document.getElementById(t+'Amts').innerHTML=quickAmts.map(a=>
+      '<div class="amt" onclick="pickAmt(\''+t+'\','+a+')">'+a.toLocaleString()+'</div>').join('');
+  });
+  updBal();
+}
+function updBal(){
+  const s='¥ '+balance.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('balD').textContent=s;
+  document.getElementById('balW').textContent=s;
+}
+function pickChan(t,i){sfx('click');if(t==='dep')depChan=i;else wdrChan=i;renderWallet()}
+function pickAmt(t,a){
+  sfx('click');
+  document.getElementById(t+'Val').value=a;
+  document.querySelectorAll('#'+t+'Amts .amt').forEach(e=>
+    e.classList.toggle('on',+e.textContent.replace(/,/g,'')===a));
+}
+function onAmtInput(t){
+  const v=+document.getElementById(t+'Val').value;
+  document.querySelectorAll('#'+t+'Amts .amt').forEach(e=>
+    e.classList.toggle('on',+e.textContent.replace(/,/g,'')===v));
+}
+
+function doDeposit(){
+  const v=+document.getElementById('depVal').value;
+  if(!v||v<100){toast('单笔最低充值 100 元');return}
+  sfx('click');
+  const btn=document.getElementById('depBtn');
+  btn.disabled=true;btn.textContent='处理中…';
+  setTimeout(()=>{
+    balance+=v;updBal();
+    btn.disabled=false;btn.textContent='确认充值';
+    document.getElementById('depVal').value='';
+    document.querySelectorAll('#depAmts .amt').forEach(e=>e.classList.remove('on'));
+    showRes('dep',v,depChans[depChan].n);
+  },900);
+}
+function doWithdraw(){
+  const v=+document.getElementById('wdrVal').value;
+  if(!v||v<100){toast('单笔最低提现 100 元');return}
+  if(v>balance){toast('可提现余额不足');return}
+  sfx('click');
+  const btn=document.getElementById('wdrBtn');
+  btn.disabled=true;btn.textContent='审核中…';
+  setTimeout(()=>{
+    balance-=v;updBal();
+    btn.disabled=false;btn.textContent='确认提现';
+    document.getElementById('wdrVal').value='';
+    document.querySelectorAll('#wdrAmts .amt').forEach(e=>e.classList.remove('on'));
+    showRes('wdr',v,wdrChans[wdrChan].n);
+  },1100);
+}
+
+function showRes(type,amt,chan){
+  const dep=type==='dep';
+  document.getElementById('resIc').className='resic '+(dep?'dep':'wdr');
+  document.getElementById('resIc').textContent=dep?'✓':'↗';
+  document.getElementById('resTt').textContent=dep?'充值已到账':'提现申请成功';
+  document.getElementById('resAm').textContent=(dep?'+ ¥ ':'- ¥ ')+amt.toLocaleString();
+  document.getElementById('resSub').textContent=dep
+    ? chan+' · 资金已实时入账，可立即游戏'
+    : chan+' · 预计 5-30 分钟内到账，请留意查收';
+  document.getElementById('resMask').classList.add('open');
+  playGodBgm(dep?'deposit':'withdraw');
+  if(dep)rainCoins();
+}
+function closeRes(){
+  sfx('click');
+  stopGodBgm('deposit');stopGodBgm('withdraw');
+  document.getElementById('resMask').classList.remove('open');
+  document.getElementById('resCoins').innerHTML='';
+}
+function rainCoins(){
+  const box=document.getElementById('resCoins');
+  box.innerHTML='';
+  const syms=['🪙','💰','✨'];
+  for(let i=0;i<14;i++){
+    const d=document.createElement('div');
+    d.className='rescoin';
+    d.textContent=syms[Math.floor(Math.random()*syms.length)];
+    d.style.left=(Math.random()*90+2)+'%';
+    d.style.fontSize=(Math.random()*8+13)+'px';
+    d.style.animationDuration=(Math.random()*.8+1.3)+'s';
+    d.style.animationDelay=(Math.random()*.7)+'s';
+    d.style.setProperty('--rot',(Math.random()*540-270)+'deg');
+    box.appendChild(d);
+  }
+  setTimeout(()=>{box.innerHTML=''},3000);
+}
+renderWallet();
+
+/* ===== 财神殿 ===== */
+let godBusy=false;
+/* 长音频播放实例表：{slot: Audio} */
+const SCENE={};
+
+/* 播放场景 BGM（可被停止，区别于短音效） */
 function playGodBgm(slot){
   stopGodBgm(slot);
   const it=BANK[slot]&&BANK[slot].find(x=>x.id===ASSIGN[slot]);
@@ -1372,18 +1613,23 @@ function playGodBgm(slot){
   const a=new Audio(it.url);
   a.volume=sVol;a.loop=false;
   a.play().catch(()=>{});
+  a.onended=()=>{if(SCENE[slot]===a)delete SCENE[slot];renderSlots()};
+  SCENE[slot]=a;
   return a;
 }
 function stopGodBgm(which){
-  if((!which||which==='laugh')&&godAudio){godAudio.pause();godAudio=null}
-  if((!which||which==='ingot')&&incAudio){incAudio.pause();incAudio=null}
+  if(which){
+    if(SCENE[which]){SCENE[which].pause();delete SCENE[which]}
+  }else{
+    Object.keys(SCENE).forEach(k=>{SCENE[k].pause();delete SCENE[k]});
+  }
 }
 
 function openGod(){
   sfx('click');
   document.getElementById('godMask').classList.add('open');
   // 打开：播放财神殿 BGM + 财神笑动画
-  godAudio=playGodBgm('laugh');
+  playGodBgm('laugh');
   setTimeout(()=>godLaugh(),260);
 }
 function closeGod(){
@@ -1432,7 +1678,7 @@ function doIncense(){
   sfx('click');
   // 敬香 BGM 接管，停掉财神殿 BGM
   stopGodBgm('laugh');
-  incAudio=playGodBgm('ingot');
+  playGodBgm('ingot');
   const bi=document.getElementById('btnIncense');
   const bw=document.getElementById('btnWish');
   bi.textContent='敬香中';bi.disabled=true;bi.classList.add('busy');
