@@ -835,16 +835,43 @@ const BANK={click:[],swipe:[],select:[],bet:[],win:[],laugh:[],ingot:[],deposit:
 let cur=null,bVol=.35,sVol=.7,db=null;
 const POOL_SIZE=4;
 
-/* 扫描单个文件夹 */
-async function scanFolder(gh,folder){
-  const api='https://api.github.com/repos/'+gh.owner+'/'+gh.repo+'/contents/sounds/'+folder;
+/* 一次请求取回整个文件树（只消耗 1 次 API 配额）*/
+async function scanTree(gh){
+  const api='https://api.github.com/repos/'+gh.owner+'/'+gh.repo+'/git/trees/main?recursive=1';
   const r=await fetch(api);
-  if(!r.ok)return [];
-  const list=await r.json();
-  if(!Array.isArray(list))return [];
-  return list
-    .filter(x=>x.type==='file'&&AUDIO_EXT.test(x.name))
-    .map(x=>({name:x.name,url:x.download_url}));
+  if(!r.ok){
+    const err=new Error('HTTP '+r.status);
+    err.status=r.status;
+    // 403 且剩余配额为 0 → 限流
+    if(r.status===403||r.status===429)err.rateLimited=true;
+    throw err;
+  }
+  const j=await r.json();
+  if(!j.tree)throw new Error('no tree');
+  const out={};FOLDERS.forEach(f=>out[f]=[]);
+  const base='https://raw.githubusercontent.com/'+gh.owner+'/'+gh.repo+'/main/';
+  j.tree.forEach(x=>{
+    if(x.type!=='blob')return;
+    const m=x.path.match(/^sounds\/([^/]+)\/([^/]+)$/);
+    if(!m)return;
+    const folder=m[1],name=m[2];
+    if(!out[folder]||!AUDIO_EXT.test(name))return;
+    out[folder].push({name,url:base+x.path.split('/').map(encodeURIComponent).join('/')});
+  });
+  FOLDERS.forEach(f=>out[f].sort((a,b)=>a.name.localeCompare(b.name,'zh')));
+  return out;
+}
+
+/* 缓存：API 限流时兜底 */
+function saveCache(data){
+  try{localStorage.setItem('ub8cloudcache',JSON.stringify({t:Date.now(),data}))}catch(e){}
+}
+function readCache(){
+  try{
+    const c=JSON.parse(localStorage.getItem('ub8cloudcache')||'null');
+    if(c&&c.data)return c;
+  }catch(e){}
+  return null;
 }
 
 /* 回退：读 list.json */
@@ -861,20 +888,36 @@ async function loadCloud(){
   const badge=document.getElementById('bgmSrc');
   badge.textContent='扫描中…';badge.className='srcbadge';
   const gh=ghInfo();
-  let data={};let ok=false;
+  let data=null, ok=false, limited=false, fromCache=false;
 
+  // 1. GitHub API 一次取全树
   if(gh){
     try{
-      const results=await Promise.all(FOLDERS.map(f=>scanFolder(gh,f)));
-      FOLDERS.forEach((f,i)=>data[f]=results[i]);
+      data=await scanTree(gh);
       ok=FOLDERS.some(f=>data[f].length>0);
-    }catch(e){ok=false}
+      if(ok)saveCache(data);
+    }catch(e){
+      if(e.rateLimited)limited=true;
+      ok=false;
+    }
   }
 
-  // API 失败或非 GitHub 环境 → 回退读 list.json
+  // 2. 限流或失败 → 用上次成功的缓存
+  if(!ok){
+    const c=readCache();
+    if(c){
+      data=c.data;
+      FOLDERS.forEach(f=>{if(!data[f])data[f]=[]});
+      ok=FOLDERS.some(f=>data[f].length>0);
+      fromCache=ok;
+    }
+  }
+
+  // 3. 再不行 → 读 list.json
   if(!ok){
     const m=await loadManifest();
     if(m){
+      data={};
       FOLDERS.forEach(f=>{
         data[f]=(m[f]||[]).map(n=>({name:n,url:'sounds/'+f+'/'+n}));
       });
@@ -883,8 +926,15 @@ async function loadCloud(){
   }
 
   if(!ok){
-    badge.textContent=gh?'云端 0 个文件':'本地模式';
-    badge.className='srcbadge';
+    if(limited){
+      badge.textContent='API 限流，稍后重试';
+      badge.className='srcbadge err';
+      badge.title='GitHub 每小时限 60 次请求，请等待后点 ↻ 重试';
+    }else{
+      badge.textContent=gh?'云端 0 个文件':'本地模式';
+      badge.className='srcbadge';
+      badge.title='';
+    }
     return false;
   }
 
@@ -902,8 +952,9 @@ async function loadCloud(){
   });
 
   const total=FOLDERS.reduce((s,f)=>s+(data[f]||[]).length,0);
-  badge.textContent='云端 '+total+' 个文件';
+  badge.textContent=(fromCache?'缓存 ':'云端 ')+total+' 个文件';
   badge.className='srcbadge ok';
+  badge.title=fromCache?'GitHub API 暂时不可用，显示的是上次成功读取的列表':'';
   return true;
 }
 const SLOTS=[
