@@ -448,8 +448,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <b style="color:#64748b">选号音</b> — 投注页全部操作：玩法标签、号码、快捷键（全奇大偶小清）、常规/桌游、模式（百十元角分）、倍数增减<br>
       <b style="color:#64748b">投注音</b> — 直接投注、添加购彩篮、参与活动<br>
       <b style="color:#64748b">中奖音</b> — 投注后延迟 1.3 秒触发<br>
-      <b style="color:#64748b">财神笑</b> — 打开财神殿、点许愿、敬香显灵时<br>
-      <b style="color:#64748b">元宝掉落</b> — 敬香后元宝洒落动画
+      <b style="color:#64748b">财神殿BGM</b> — 打开财神殿时播放，关闭弹窗即停止<br>
+      <b style="color:#64748b">敬香BGM</b> — 点击敬香时播放，关闭弹窗即停止
     </p>
     <p style="font-size:11px;color:#94a3b8;line-height:1.9;margin-top:10px">
       <span class="cloudtag">云端</span> 所有人可听，把音频丢进仓库对应文件夹即可，无需其他操作。<br>
@@ -786,8 +786,8 @@ const SLOTS=[
  {k:'select',n:'选号音'},
  {k:'bet',n:'投注音'},
  {k:'win',n:'中奖音'},
- {k:'laugh',n:'财神笑'},
- {k:'ingot',n:'元宝掉落'}
+ {k:'laugh',n:'财神殿BGM'},
+ {k:'ingot',n:'敬香BGM'}
 ];
 
 function buildPool(k,url){
@@ -807,7 +807,20 @@ function sfx(k){
   try{a.currentTime=0}catch(e){}
   a.play().catch(()=>{});
 }
-function tsf(k){if(!POOL[k]){toast('该槽位还没分配音效');return}sfx(k)}
+function tsf(k){
+  // 财神殿两个 BGM 槽位：用独立实例播放，可再次点击停止
+  if(k==='laugh'||k==='ingot'){
+    const playing=(k==='laugh'?godAudio:incAudio);
+    if(playing){stopGodBgm(k);toast('已停止');return}
+    const a=playGodBgm(k);
+    if(!a){toast('该槽位还没分配音效');return}
+    if(k==='laugh')godAudio=a;else incAudio=a;
+    a.onended=()=>{if(k==='laugh')godAudio=null;else incAudio=null};
+    return;
+  }
+  if(!POOL[k]){toast('该槽位还没分配音效');return}
+  sfx(k);
+}
 
 /* 试听某槽位下的某个文件 */
 function prevOne(k,i,e){
@@ -863,7 +876,7 @@ function pickOne(k,id){
   ASSIGN[k]=id;buildPool(k,it.url);
   saveAssign();renderSlots();
   toast(SLOTS.find(s=>s.k===k).n+' → '+it.name);
-  setTimeout(()=>sfx(k),120);
+  if(k!=='laugh'&&k!=='ingot')setTimeout(()=>sfx(k),120);
 }
 
 /* 上传文件到指定槽位 */
@@ -992,7 +1005,10 @@ async function clrAll(){if(!confirm('清空本机临时添加的音频？（云�
   renderB();renderSlots();toast('已清空本机文件')}
 function sbv(v){bVol=v/100;document.getElementById('bv').textContent=v+'%';if(cur)cur.a.volume=bVol;localStorage.setItem('ub8bv3',v)}
 function ssv(v){sVol=v/100;document.getElementById('sv').textContent=v+'%';
-  Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));localStorage.setItem('ub8sv3',v)}
+  Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));
+  if(typeof godAudio!=='undefined'&&godAudio)godAudio.volume=sVol;
+  if(typeof incAudio!=='undefined'&&incAudio)incAudio.volume=sVol;
+  localStorage.setItem('ub8sv3',v)}
 function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
 const bnMap={lobby:'bn-lobby',activity:'bn-activity',actdetail:'bn-activity',help:'bn-help',vip:'bn-vip',service:'bn-service'};
@@ -1346,16 +1362,33 @@ mkRooms('sportRooms',[
   w.appendChild(s)}})();
 
 /* ===== 财神殿 ===== */
-let godBusy=false;
+let godBusy=false, godAudio=null, incAudio=null;
+
+/* 播放财神殿场景 BGM（可被停止，区别于短音效） */
+function playGodBgm(slot){
+  stopGodBgm(slot);
+  const it=BANK[slot]&&BANK[slot].find(x=>x.id===ASSIGN[slot]);
+  if(!it)return null;
+  const a=new Audio(it.url);
+  a.volume=sVol;a.loop=false;
+  a.play().catch(()=>{});
+  return a;
+}
+function stopGodBgm(which){
+  if((!which||which==='laugh')&&godAudio){godAudio.pause();godAudio=null}
+  if((!which||which==='ingot')&&incAudio){incAudio.pause();incAudio=null}
+}
 
 function openGod(){
   sfx('click');
   document.getElementById('godMask').classList.add('open');
-  // 打开即笑
+  // 打开：播放财神殿 BGM + 财神笑动画
+  godAudio=playGodBgm('laugh');
   setTimeout(()=>godLaugh(),260);
 }
 function closeGod(){
   sfx('click');
+  stopGodBgm();
   document.getElementById('godMask').classList.remove('open');
   resetGod();
 }
@@ -1370,7 +1403,7 @@ function resetGod(){
   godBusy=false;
 }
 
-/* 财神笑 */
+/* 财神笑（纯动画，不带音效） */
 function godLaugh(){
   const f=document.getElementById('godFace');
   const g=document.getElementById('godGlow');
@@ -1378,7 +1411,6 @@ function godLaugh(){
   void f.offsetWidth;          // 重启动画
   f.classList.add('laughing');
   g.classList.add('on');
-  sfx('laugh');
   setTimeout(()=>{f.classList.remove('laughing');g.classList.remove('on')},1500);
 }
 
@@ -1398,6 +1430,9 @@ function doIncense(){
   if(godBusy)return;
   godBusy=true;
   sfx('click');
+  // 敬香 BGM 接管，停掉财神殿 BGM
+  stopGodBgm('laugh');
+  incAudio=playGodBgm('ingot');
   const bi=document.getElementById('btnIncense');
   const bw=document.getElementById('btnWish');
   bi.textContent='敬香中';bi.disabled=true;bi.classList.add('busy');
@@ -1426,11 +1461,10 @@ function doIncense(){
   },5200);
 }
 
-/* 元宝掉落动画 */
+/* 元宝掉落动画（纯动画，不带音效） */
 function dropIngots(){
   const box=document.getElementById('ingotBox');
   box.innerHTML='';
-  sfx('ingot');
   const syms=['🪙','💰','🧧','🪙','💰'];
   for(let i=0;i<16;i++){
     const d=document.createElement('div');
