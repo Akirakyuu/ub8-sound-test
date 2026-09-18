@@ -507,8 +507,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <b style="color:#64748b">选号音</b> — 投注页全部操作：玩法标签、号码、快捷键（全奇大偶小清）、常规/桌游、模式（百十元角分）、倍数增减<br>
       <b style="color:#64748b">投注音</b> — 直接投注、添加购彩篮、参与活动<br>
       <b style="color:#64748b">中奖音</b> — 投注后延迟 1.3 秒触发<br>
-      <b style="color:#64748b">财神殿BGM</b> — 打开财神殿时播放，关闭弹窗即停止<br>
-      <b style="color:#64748b">敬香BGM</b> — 点击敬香时播放，关闭弹窗即停止<br>
+      <b style="color:#64748b">财神殿BGM</b> — 打开财神殿即循环播放，关闭弹窗才停止<br>
+      <b style="color:#64748b">敬香BGM</b> — 点敬香时叠加播放，此时财神殿BGM自动降低音量<br>
       <b style="color:#64748b">充值到账BGM</b> — 充值成功弹窗出现时播放<br>
       <b style="color:#64748b">提现BGM</b> — 提现申请成功弹窗出现时播放
     </p>
@@ -992,7 +992,7 @@ function tsf(k){
   // 长音频槽位：独立实例播放，再点一次停止
   if(BGMSLOTS.includes(k)){
     if(SCENE[k]){stopGodBgm(k);renderSlots();toast('已停止');return}
-    const a=playGodBgm(k);
+    const a=playGodBgm(k,{loop:k==='laugh'});
     if(!a){toast('该槽位还没分配音效');return}
     renderSlots();
     return;
@@ -1185,7 +1185,7 @@ async function clrAll(){if(!confirm('清空本机临时添加的音频？（云�
 function sbv(v){bVol=v/100;document.getElementById('bv').textContent=v+'%';if(cur)cur.a.volume=bVol;localStorage.setItem('ub8bv3',v)}
 function ssv(v){sVol=v/100;document.getElementById('sv').textContent=v+'%';
   Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));
-  if(typeof SCENE!=='undefined')Object.values(SCENE).forEach(a=>a.volume=sVol);
+  if(typeof SCENE!=='undefined')Object.values(SCENE).forEach(a=>a.volume=sVol*(a._gain||1));
   localStorage.setItem('ub8sv3',v)}
 function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
@@ -1657,14 +1657,17 @@ let godBusy=false;
 const SCENE={};
 
 /* 播放场景 BGM（可被停止，区别于短音效） */
-function playGodBgm(slot){
+function playGodBgm(slot,opt){
+  opt=opt||{};
   stopGodBgm(slot);
   const it=BANK[slot]&&BANK[slot].find(x=>x.id===ASSIGN[slot]);
   if(!it)return null;
   const a=new Audio(it.url);
-  a.volume=sVol;a.loop=false;
+  a.loop=!!opt.loop;
+  a._gain=opt.gain||1;            // 相对音量系数，用于闪避
+  a.volume=sVol*a._gain;
   a.play().catch(()=>{});
-  a.onended=()=>{if(SCENE[slot]===a)delete SCENE[slot];renderSlots()};
+  if(!a.loop)a.onended=()=>{if(SCENE[slot]===a)delete SCENE[slot];renderSlots()};
   SCENE[slot]=a;
   return a;
 }
@@ -1676,11 +1679,29 @@ function stopGodBgm(which){
   }
 }
 
+/* 财神殿 BGM 音量闪避：敬香时压低，结束后平滑恢复 */
+function duckGodBgm(gain){
+  const a=SCENE['laugh'];if(!a)return;
+  a._gain=gain;
+  a.volume=sVol*gain;
+}
+function unduckGodBgm(){
+  const a=SCENE['laugh'];if(!a)return;
+  const target=sVol, step=(target-a.volume)/18;
+  a._gain=1;
+  let n=0;
+  const t=setInterval(()=>{
+    n++;
+    a.volume=Math.min(target,Math.max(0,a.volume+step));
+    if(n>=18||Math.abs(a.volume-target)<.01){a.volume=target;clearInterval(t)}
+  },40);
+}
+
 function openGod(){
   sfx('click');
   document.getElementById('godMask').classList.add('open');
   // 打开：播放财神殿 BGM + 财神笑动画
-  playGodBgm('laugh');
+  playGodBgm('laugh',{loop:true});
   setTimeout(()=>godLaugh(),260);
 }
 function closeGod(){
@@ -1727,8 +1748,8 @@ function doIncense(){
   if(godBusy)return;
   godBusy=true;
   sfx('click');
-  // 敬香 BGM 接管，停掉财神殿 BGM
-  stopGodBgm('laugh');
+  // 财神殿 BGM 继续播放，只压低音量给敬香 BGM 让路
+  duckGodBgm(.35);
   playGodBgm('ingot');
   const bi=document.getElementById('btnIncense');
   const bw=document.getElementById('btnWish');
@@ -1748,12 +1769,14 @@ function doIncense(){
     document.getElementById('godTip').textContent='财神显灵，金玉满堂！';
   },1100);
 
-  // 5s 后复位
+  // 5s 后复位，财神殿 BGM 音量恢复
   setTimeout(()=>{
     document.getElementById('smoke').classList.remove('on');
     document.getElementById('sticks').classList.remove('on');
     bi.textContent='敬香';bi.disabled=false;bi.classList.remove('busy');
     bw.disabled=false;godBusy=false;
+    stopGodBgm('ingot');
+    unduckGodBgm();
     document.getElementById('godTip').textContent='点击下方按钮，财神显灵';
   },5200);
 }
