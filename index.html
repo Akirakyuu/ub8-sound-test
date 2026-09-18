@@ -60,6 +60,16 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .sdel{color:#cbd5e1;font-size:15px;padding:0 2px;flex-shrink:0;line-height:1}
 .sdel:hover{color:#ef4444}
 .sempty{font-size:11px;color:#94a3b8;text-align:center;padding:16px 0}
+.svrow{display:flex;align-items:center;gap:8px;padding:8px 9px 10px;margin-bottom:4px;
+ border-bottom:1px solid #f1f5f9}
+.svlb{font-size:10.5px;color:#94a3b8;flex-shrink:0}
+.svrow input[type=range]{flex:1;accent-color:#1E88E5;height:4px;min-width:0}
+.svval{font-size:10.5px;color:#1E88E5;font-weight:600;min-width:34px;text-align:right;flex-shrink:0}
+.svrst{width:20px;height:20px;border:1px solid #e0e6eb;background:#fff;border-radius:4px;
+ color:#94a3b8;font-size:11px;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
+.svrst:hover{border-color:#1E88E5;color:#1E88E5}
+.vtag{font-size:8.5px;color:#C2410C;background:#ffedd5;padding:1px 5px;border-radius:3px;
+ flex-shrink:0;font-weight:600}
 .cnt{font-size:9px;color:#1E88E5;background:#e3f2fd;padding:2px 6px;border-radius:9px;flex-shrink:0;font-weight:600}
 .addbtn{display:block;margin:6px 4px 3px;padding:8px;text-align:center;border:1.5px dashed #cbd5e1;border-radius:5px;cursor:pointer;font-size:11px;color:#64748b;background:#fafcfe}
 .addbtn:hover{border-color:#1E88E5;color:#1E88E5;background:#f0f7ff}
@@ -548,7 +558,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
   <div class="ps">
     <h3>交互音效</h3>
     <div id="slotRows"></div>
-    <div class="vr"><label>音量</label><input type="range" min="0" max="100" value="70" oninput="ssv(this.value)"><span class="vv" id="sv">70%</span></div>
+    <div class="vr"><label>总音量</label><input type="range" min="0" max="100" value="70" oninput="ssv(this.value)"><span class="vv" id="sv">70%</span></div>
   </div>
   <div class="ps" style="border:none">
     <h3>触发位置</h3>
@@ -566,7 +576,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
     <p style="font-size:11px;color:#94a3b8;line-height:1.9;margin-top:10px">
       <span class="cloudtag">云端</span> 所有人可听，把音频丢进仓库对应文件夹即可，无需其他操作。<br>
       <span class="localtag">本机</span> 只在你自己浏览器里，方便临时试听对比。<br>
-      管理员上传新文件后，点右上角 ↻ 按钮即可刷新。
+      管理员上传新文件后，点右上角 ↻ 按钮即可刷新。<br>
+      展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
   </div>
@@ -1094,7 +1105,7 @@ function ghInfo(){
 }
 
 /* ===== 音频：每槽位独立音效列表 ===== */
-const POOL={},B=[],ASSIGN={};
+const POOL={},B=[],ASSIGN={},GAIN={};   // GAIN: 每个槽位的独立音量系数 0-1.5
 const BANK={click:[],swipe:[],select:[],bet:[],win:[],laugh:[],ingot:[],deposit:[],withdraw:[]};
 let cur=null,bVol=.35,sVol=.7,db=null;
 const POOL_SIZE=4;
@@ -1235,11 +1246,12 @@ const SLOTS=[
 /* 长音频槽位：用独立实例播放，可停止 */
 const BGMSLOTS=['laugh','ingot','deposit','withdraw'];
 
+function slotVol(k){return Math.min(1,sVol*(GAIN[k]===undefined?1:GAIN[k]))}
 function buildPool(k,url){
   const arr=[];
   for(let i=0;i<POOL_SIZE;i++){
     const a=new Audio(url);
-    a.preload='auto';a.volume=sVol;a.load();
+    a.preload='auto';a.volume=slotVol(k);a.load();
     arr.push(a);
   }
   POOL[k]={arr,idx:0};
@@ -1248,7 +1260,7 @@ function sfx(k){
   const p=POOL[k];if(!p)return;
   const a=p.arr[p.idx];
   p.idx=(p.idx+1)%POOL_SIZE;
-  a.volume=sVol;
+  a.volume=slotVol(k);
   try{a.currentTime=0}catch(e){}
   a.play().catch(()=>{});
 }
@@ -1269,7 +1281,7 @@ function tsf(k){
 function prevOne(k,i,e){
   if(e)e.stopPropagation();
   const it=BANK[k][i];if(!it)return;
-  const a=new Audio(it.url);a.volume=sVol;a.play().catch(()=>{});
+  const a=new Audio(it.url);a.volume=slotVol(k);a.play().catch(()=>{});
 }
 
 /* 当前展开的槽位 */
@@ -1295,7 +1307,15 @@ function renderSlots(){
             '</div>'
           ).join('')
         : '<div class="sempty">还没有文件，点下方按钮临时添加</div>';
-      body='<div class="slist">'+items+
+      const g=Math.round((GAIN[s.k]===undefined?1:GAIN[s.k])*100);
+      body='<div class="slist">'+
+        '<div class="svrow"><span class="svlb">音量</span>'+
+        '<input type="range" min="0" max="150" value="'+g+'" '+
+        'oninput="setSlotGain(\''+s.k+'\',this.value)" onclick="event.stopPropagation()">'+
+        '<span class="svval" id="sv_'+s.k+'">'+g+'%</span>'+
+        '<button class="svrst" onclick="setSlotGain(\''+s.k+'\',100,1);event.stopPropagation()" title="恢复100%">↺</button>'+
+        '</div>'+
+        items+
         '<label class="addbtn">＋ 临时添加（仅本机可见）'+
         '<input type="file" accept="audio/*" multiple onchange="ldOne(this,\''+s.k+'\')"></label>'+
         '</div>';
@@ -1305,6 +1325,8 @@ function renderSlots(){
         '<span class="slotn">'+s.n+'</span>'+
         '<span class="slotv'+(sel?' has':'')+'">'+curName+'</span>'+
         (list.length>1?'<span class="cnt">'+list.length+'</span>':'')+
+        (GAIN[s.k]!==undefined&&Math.abs(GAIN[s.k]-1)>.001
+          ?'<span class="vtag">'+Math.round(GAIN[s.k]*100)+'%</span>':'')+
         '<button class="pl" onclick="tsf(\''+s.k+'\');event.stopPropagation()">试听</button>'+
         '<span class="slotar">'+(isOpen?'▲':'▼')+'</span>'+
       '</div>'+body+'</div>';
@@ -1352,6 +1374,19 @@ async function rmOne(k,i,e){
 }
 
 function saveAssign(){localStorage.setItem('ub8assign',JSON.stringify(ASSIGN))}
+function saveGain(){localStorage.setItem('ub8gain',JSON.stringify(GAIN))}
+
+/* 设置单个槽位音量；rerender=1 时重绘（用于重置按钮）*/
+function setSlotGain(k,v,rerender){
+  const g=Math.max(0,Math.min(1.5,(+v)/100));
+  GAIN[k]=g;saveGain();
+  const lb=document.getElementById('sv_'+k);
+  if(lb)lb.textContent=Math.round(g*100)+'%';
+  // 实时应用到已有实例
+  if(POOL[k])POOL[k].arr.forEach(a=>a.volume=slotVol(k));
+  if(SCENE[k])SCENE[k].volume=slotVol(k)*(SCENE[k]._duck||1);
+  if(rerender)renderSlots();
+}
 
 /* 手动刷新云端文件列表 */
 async function reloadCloud(){
@@ -1401,6 +1436,11 @@ async function restore(){
     }
     else B.push({id:r.id,name:r.name,url:u})});
   // 3. 恢复上次选择
+  // 先恢复各槽位音量，再建池
+  try{
+    const gs=JSON.parse(localStorage.getItem('ub8gain')||'{}');
+    Object.keys(gs).forEach(k=>{if(BANK[k])GAIN[k]=gs[k]});
+  }catch(e){}
   try{
     const saved=JSON.parse(localStorage.getItem('ub8assign')||'{}');
     Object.keys(saved).forEach(k=>{
@@ -1442,14 +1482,16 @@ async function clrAll(){if(!confirm('清空本机临时添加的音频？（云�
   Object.keys(BANK).forEach(k=>BANK[k].length=0);
   Object.keys(POOL).forEach(k=>delete POOL[k]);
   Object.keys(ASSIGN).forEach(k=>delete ASSIGN[k]);
-  localStorage.removeItem('ub8assign');
+  Object.keys(GAIN).forEach(k=>delete GAIN[k]);
+  localStorage.removeItem('ub8assign');localStorage.removeItem('ub8gain');
   openSlot=null;
   await loadCloud();
   renderB();renderSlots();toast('已清空本机文件')}
 function sbv(v){bVol=v/100;document.getElementById('bv').textContent=v+'%';if(cur)cur.a.volume=bVol;localStorage.setItem('ub8bv3',v)}
 function ssv(v){sVol=v/100;document.getElementById('sv').textContent=v+'%';
-  Object.values(POOL).forEach(p=>p.arr.forEach(a=>a.volume=sVol));
-  if(typeof SCENE!=='undefined')Object.values(SCENE).forEach(a=>a.volume=sVol*(a._gain||1));
+  Object.keys(POOL).forEach(k=>POOL[k].arr.forEach(a=>a.volume=slotVol(k)));
+  if(typeof SCENE!=='undefined')Object.values(SCENE).forEach(a=>{
+    a.volume=slotVol(a._slot||'')*(a._duck||1)});
   localStorage.setItem('ub8sv3',v)}
 function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
 
@@ -1928,8 +1970,9 @@ function playGodBgm(slot,opt){
   if(!it)return null;
   const a=new Audio(it.url);
   a.loop=!!opt.loop;
-  a._gain=opt.gain||1;            // 相对音量系数，用于闪避
-  a.volume=sVol*a._gain;
+  a._slot=slot;
+  a._duck=opt.gain||1;            // 闪避系数
+  a.volume=slotVol(slot)*a._duck;
   a.play().catch(()=>{});
   if(!a.loop)a.onended=()=>{if(SCENE[slot]===a)delete SCENE[slot];renderSlots()};
   SCENE[slot]=a;
@@ -1946,13 +1989,13 @@ function stopGodBgm(which){
 /* 财神殿 BGM 音量闪避：敬香时压低，结束后平滑恢复 */
 function duckGodBgm(gain){
   const a=SCENE['laugh'];if(!a)return;
-  a._gain=gain;
-  a.volume=sVol*gain;
+  a._duck=gain;
+  a.volume=slotVol('laugh')*gain;
 }
 function unduckGodBgm(){
   const a=SCENE['laugh'];if(!a)return;
-  const target=sVol, step=(target-a.volume)/18;
-  a._gain=1;
+  const target=slotVol('laugh'), step=(target-a.volume)/18;
+  a._duck=1;
   let n=0;
   const t=setInterval(()=>{
     n++;
