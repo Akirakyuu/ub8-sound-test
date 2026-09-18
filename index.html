@@ -75,80 +75,131 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 @keyframes rfsp{to{transform:rotate(360deg)}}
 
 /* ===== 财神浮标 ===== */
-.godfab{position:fixed;right:20px;bottom:150px;z-index:98;width:52px;height:52px;border-radius:50%;
- background:radial-gradient(circle at 35% 30%,#FFE082,#D32F2F 62%,#8E0000);
- border:2px solid #FFD54F;color:#FFF3C4;font-size:22px;font-weight:900;cursor:pointer;
- display:flex;align-items:center;justify-content:center;
+.godfab{position:fixed;right:18px;bottom:152px;z-index:98;width:50px;height:50px;border-radius:50%;
+ background:radial-gradient(circle at 34% 28%,#FFE9A8,#E53935 58%,#8E0000);
+ border:2px solid #FFD54F;color:#FFF3C4;font-size:21px;font-weight:900;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;transition:transform .16s;
  box-shadow:0 4px 16px rgba(211,47,47,.45),0 0 0 0 rgba(255,213,79,.6);
  animation:godpulse 2.4s ease-out infinite}
 @keyframes godpulse{0%{box-shadow:0 4px 16px rgba(211,47,47,.45),0 0 0 0 rgba(255,213,79,.6)}
  70%{box-shadow:0 4px 16px rgba(211,47,47,.45),0 0 0 14px rgba(255,213,79,0)}
  100%{box-shadow:0 4px 16px rgba(211,47,47,.45),0 0 0 0 rgba(255,213,79,0)}}
-.godfab:hover{transform:scale(1.07)}
+.godfab:hover{transform:scale(1.08)}
 
-/* ===== 财神殿弹窗 ===== */
-.godmask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1150;display:none;
- align-items:center;justify-content:center;padding:16px}
-.godmask.open{display:flex}
-.goddlg{width:330px;max-height:94vh;background:linear-gradient(180deg,#D93A2B,#C62828 42%,#B71C1C);
- border-radius:14px;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);
- display:flex;flex-direction:column}
-.goddlg::before,.goddlg::after{content:'';position:absolute;width:76px;height:76px;
- background:radial-gradient(circle,rgba(255,213,79,.28),transparent 68%);pointer-events:none}
-.goddlg::before{top:-14px;left:-14px}
-.goddlg::after{top:-14px;right:-14px}
-.godx{position:absolute;top:11px;right:12px;width:26px;height:26px;border-radius:50%;
- background:rgba(0,0,0,.28);border:none;color:#FFE082;font-size:15px;cursor:pointer;z-index:6;line-height:1}
-.godttl{text-align:center;padding:15px 0 11px;font-size:23px;font-weight:900;letter-spacing:5px;
- color:#FFF3C4;text-shadow:0 2px 8px rgba(0,0,0,.4);position:relative;z-index:3}
-.godpic{margin:0 15px;height:210px;border-radius:9px;position:relative;overflow:hidden;
- background:linear-gradient(170deg,#E8A33D,#C1441F 55%,#8E1A0E);
- border:2px solid rgba(255,213,79,.45);display:flex;align-items:flex-end;justify-content:center}
-.godface{font-size:88px;line-height:1;margin-bottom:6px;transition:transform .3s;
- filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
-.godface.laughing{animation:godlaugh 1.5s ease-in-out}
+/* ===== 财神殿（右下角浮层）===== */
+.godmask{position:fixed;right:78px;bottom:24px;z-index:1150;display:none;pointer-events:none}
+.godmask.open{display:block}
+.goddlg{width:306px;pointer-events:auto;position:relative;border-radius:13px;overflow:hidden;
+ display:flex;flex-direction:column;
+ background:linear-gradient(178deg,#E33E2E 0%,#D32F2F 30%,#C62828 66%,#A91B1B 100%);
+ box-shadow:0 18px 50px rgba(0,0,0,.42),0 0 0 1px rgba(255,213,79,.35) inset;
+ animation:godin .32s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes godin{0%{opacity:0;transform:translateY(22px) scale(.95)}
+ 100%{opacity:1;transform:translateY(0) scale(1)}}
+
+/* 描金边框 */
+.goldframe{position:absolute;inset:6px;border:1px solid rgba(255,213,79,.42);
+ border-radius:9px;pointer-events:none;z-index:5}
+.goldframe::before,.goldframe::after{content:'';position:absolute;width:17px;height:17px;
+ border:2px solid #FFD54F;border-radius:2px}
+.goldframe::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.goldframe::after{top:-1px;right:-1px;border-left:none;border-bottom:none}
+
+/* 顶部祥云 */
+.cloudrow{position:absolute;top:0;left:0;right:0;height:52px;pointer-events:none;z-index:2;opacity:.9}
+.godx{position:absolute;top:9px;right:10px;width:24px;height:24px;border-radius:50%;
+ background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.4);color:#FFE082;
+ font-size:14px;cursor:pointer;z-index:9;line-height:1;padding:0}
+.godx:hover{background:rgba(0,0,0,.5)}
+.godttl{text-align:center;padding:13px 0 9px;font-size:22px;font-weight:900;letter-spacing:6px;
+ color:#FFEFB8;position:relative;z-index:4;
+ text-shadow:0 0 14px rgba(255,193,7,.55),0 2px 4px rgba(0,0,0,.45);
+ font-family:"STKaiti","KaiTi","PingFang SC",serif}
+
+/* 画像区 */
+.godpic{margin:0 13px;height:200px;border-radius:8px;position:relative;overflow:hidden;
+ border:2px solid rgba(255,213,79,.5);z-index:3;
+ background:radial-gradient(ellipse at 50% 34%,#F0B860 0%,#D9642A 42%,#A32718 76%,#6E1409 100%)}
+.godsvg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+ width:210px;height:200px;transform-origin:50% 78%;
+ filter:drop-shadow(0 6px 14px rgba(70,10,0,.45))}
+.godsvg.laughing{animation:godlaugh 1.5s ease-in-out}
 @keyframes godlaugh{
- 0%{transform:scale(1) rotate(0)}
- 15%{transform:scale(1.13) rotate(-4deg)}
- 30%{transform:scale(1.06) rotate(3deg)}
- 45%{transform:scale(1.15) rotate(-3deg)}
- 60%{transform:scale(1.07) rotate(2deg)}
- 78%{transform:scale(1.11) rotate(-2deg)}
- 100%{transform:scale(1) rotate(0)}}
-.godglow{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(255,235,150,.55),transparent 62%);
- opacity:0;transition:opacity .35s;pointer-events:none}
+ 0%{transform:translateX(-50%) scale(1) rotate(0)}
+ 14%{transform:translateX(-50%) scale(1.07) rotate(-2.4deg)}
+ 28%{transform:translateX(-50%) scale(1.02) rotate(1.8deg)}
+ 44%{transform:translateX(-50%) scale(1.08) rotate(-1.8deg)}
+ 60%{transform:translateX(-50%) scale(1.03) rotate(1.2deg)}
+ 78%{transform:translateX(-50%) scale(1.06) rotate(-1deg)}
+ 100%{transform:translateX(-50%) scale(1) rotate(0)}}
+.godglow{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .4s;
+ background:radial-gradient(circle at 50% 40%,rgba(255,240,170,.62) 0%,rgba(255,200,80,.22) 38%,transparent 66%)}
 .godglow.on{opacity:1}
+.sparkle{position:absolute;inset:0;z-index:4;pointer-events:none}
+.spk{position:absolute;width:3px;height:3px;border-radius:50%;background:#FFF3C4;
+ box-shadow:0 0 6px 2px rgba(255,213,79,.85);opacity:0;animation:spktw 2.8s ease-in-out infinite}
+@keyframes spktw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:.95;transform:scale(1.25)}}
 
-/* 香炉区 */
-.godaltar{flex:1;position:relative;padding:14px 15px 0;display:flex;
- align-items:flex-end;justify-content:center;min-height:118px}
-.censer{position:relative;display:flex;flex-direction:column;align-items:center;z-index:3}
-.smoke{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);
- display:flex;gap:9px;opacity:0;transition:opacity .5s;pointer-events:none}
+/* 金色横幅 */
+.godbanner{margin:11px 13px 0;position:relative;z-index:4;height:31px;
+ display:flex;align-items:center;justify-content:center;
+ background:linear-gradient(180deg,#FFE9A8,#F5C24B 46%,#D9971F);
+ border-radius:3px;box-shadow:0 2px 7px rgba(0,0,0,.28)}
+.godbanner::before,.godbanner::after{content:'';position:absolute;top:-3px;bottom:-3px;width:13px;
+ background:linear-gradient(180deg,#D9971F,#A8710F);border-radius:2px}
+.godbanner::before{left:-9px;clip-path:polygon(0 0,100% 12%,100% 88%,0 100%,28% 50%)}
+.godbanner::after{right:-9px;clip-path:polygon(100% 0,0 12%,0 88%,100% 100%,72% 50%)}
+.godbanner span{font-size:12px;font-weight:700;color:#8A1B0C;letter-spacing:.5px;
+ font-family:"STKaiti","KaiTi","PingFang SC",serif;white-space:nowrap}
+
+/* 供桌区 */
+.godaltar{flex:1;position:relative;padding:18px 13px 0;display:flex;
+ align-items:flex-end;justify-content:center;min-height:134px;z-index:3}
+.censer{position:relative;display:flex;flex-direction:column;align-items:center;z-index:4;margin-bottom:46px}
+.smoke{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);
+ display:flex;gap:10px;opacity:0;transition:opacity .5s;pointer-events:none}
 .smoke.on{opacity:1}
-.smk{width:4px;height:34px;border-radius:2px;
- background:linear-gradient(180deg,transparent,rgba(255,255,255,.55));
- animation:smkrise 2.6s ease-in-out infinite}
-.smk:nth-child(2){animation-delay:.5s;height:42px}
-.smk:nth-child(3){animation-delay:1s}
-@keyframes smkrise{0%{transform:translateY(12px) scaleY(.45);opacity:0}
- 35%{opacity:.85}100%{transform:translateY(-30px) scaleY(1.25);opacity:0}}
-.sticks{display:flex;gap:5px;align-items:flex-end;margin-bottom:-4px;z-index:2;opacity:0;transition:opacity .3s}
+.smk{width:3px;height:32px;border-radius:2px;
+ background:linear-gradient(180deg,transparent,rgba(255,250,235,.62));
+ animation:smkrise 2.8s ease-in-out infinite;filter:blur(1px)}
+.smk:nth-child(2){animation-delay:.6s;height:40px}
+.smk:nth-child(3){animation-delay:1.2s}
+@keyframes smkrise{0%{transform:translateY(12px) scaleY(.4);opacity:0}
+ 32%{opacity:.8}100%{transform:translateY(-34px) scaleY(1.3) translateX(4px);opacity:0}}
+.sticks{display:flex;gap:5px;align-items:flex-end;margin-bottom:-5px;z-index:3;
+ opacity:0;transition:opacity .35s}
 .sticks.on{opacity:1}
-.stick{width:2.5px;height:36px;background:linear-gradient(180deg,#FFCA28,#8D6E63);border-radius:1px;position:relative}
-.stick::after{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);
- width:4px;height:4px;border-radius:50%;background:#FF7043;box-shadow:0 0 6px 2px rgba(255,112,67,.8)}
-.censerbody{width:82px;height:44px;border-radius:6px 6px 14px 14px;
- background:linear-gradient(180deg,#8D6E63,#5D4037 60%,#3E2723);
- border:1.5px solid rgba(255,213,79,.5);position:relative}
-.censerbody::before{content:'';position:absolute;top:-5px;left:-7px;right:-7px;height:8px;
- border-radius:4px;background:linear-gradient(180deg,#A1887F,#6D4C41)}
-.lion{position:absolute;bottom:0;width:26px;height:34px;font-size:22px;line-height:1;
- display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 0 5px rgba(255,193,7,.6))}
-.lion.l{left:16px}.lion.r{right:16px}
-.godtable{position:absolute;left:15px;right:15px;bottom:0;height:22px;
- background:linear-gradient(180deg,#6D4C41,#4E342E);border-radius:4px 4px 0 0;
- border-top:2px solid rgba(255,213,79,.4)}
+.stick{width:2px;height:34px;border-radius:1px;position:relative;
+ background:linear-gradient(180deg,#FFE082 0%,#C98A2E 40%,#6D4C41 100%)}
+.stick:nth-child(2){height:39px}
+.stick::after{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+ width:3.5px;height:3.5px;border-radius:50%;background:#FF8A50;
+ box-shadow:0 0 7px 2.5px rgba(255,112,67,.9);animation:emberglow 1.4s ease-in-out infinite}
+@keyframes emberglow{0%,100%{opacity:.75}50%{opacity:1}}
+.altarsvg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+ width:280px;height:110px;z-index:2}
+
+/* 元宝掉落 */
+.ingots{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:6}
+.ingot{position:absolute;font-size:22px;top:-32px;animation:ingotfall linear forwards}
+@keyframes ingotfall{
+ 0%{transform:translateY(0) rotate(0);opacity:0}
+ 8%{opacity:1}
+ 88%{opacity:1}
+ 100%{transform:translateY(340px) rotate(var(--rot));opacity:0}}
+
+/* 按钮 */
+.godbtns{display:flex;gap:10px;padding:12px 13px 14px;position:relative;z-index:4}
+.godbtn{flex:1;padding:10px 0;border-radius:6px;cursor:pointer;position:relative;
+ border:1.5px solid #F5C24B;font-size:14px;font-weight:700;letter-spacing:4px;
+ background:linear-gradient(180deg,#F04C3C,#C62828 55%,#9E1B1B);color:#FFEFB8;
+ font-family:"STKaiti","KaiTi","PingFang SC",serif;
+ box-shadow:0 3px 9px rgba(0,0,0,.3),0 1px 0 rgba(255,235,180,.35) inset}
+.godbtn:hover{background:linear-gradient(180deg,#F56152,#D32F2F 55%,#B71C1C)}
+.godbtn:disabled{opacity:.55;cursor:default}
+.godbtn.busy{background:linear-gradient(180deg,#8D6E63,#5D4037);border-color:rgba(255,213,79,.45)}
+.godtip{text-align:center;font-size:10.5px;color:rgba(255,239,184,.78);padding:9px 13px 9px;
+ position:relative;z-index:4;min-height:14px;letter-spacing:.5px}
 
 /* 元宝掉落 */
 .ingots{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:4}
@@ -773,25 +824,238 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 
 <button class="godfab" onclick="openGod()" title="财神殿">财</button>
 
-<div class="godmask" id="godMask" onclick="if(event.target===this)closeGod()">
+<div class="godmask" id="godMask">
   <div class="goddlg">
+    <div class="goldframe"></div>
+
+    <svg class="cloudrow" viewBox="0 0 306 52" preserveAspectRatio="none">
+      <g fill="none" stroke="#FFD54F" stroke-width="1.6" opacity=".55" stroke-linecap="round">
+        <path d="M14 22c0-5 4-8 8-6 1-4 7-5 9-1 4-1 6 2 5 5 3 0 4 3 2 5"/>
+        <path d="M22 28c4 0 7 0 10-2"/>
+        <path d="M292 22c0-5-4-8-8-6-1-4-7-5-9-1-4-1-6 2-5 5-3 0-4 3-2 5"/>
+        <path d="M284 28c-4 0-7 0-10-2"/>
+        <path d="M52 15c0-3 3-5 5-3 1-2 4-3 5 0 2-1 4 1 3 3"/>
+        <path d="M254 15c0-3-3-5-5-3-1-2-4-3-5 0-2-1-4 1-3 3"/>
+      </g>
+      <g fill="#FFD54F" opacity=".38">
+        <circle cx="40" cy="36" r="2"/><circle cx="266" cy="36" r="2"/>
+        <circle cx="66" cy="26" r="1.5"/><circle cx="240" cy="26" r="1.5"/>
+      </g>
+    </svg>
+
     <button class="godx" onclick="closeGod()">×</button>
     <div class="godttl">财神殿</div>
+
     <div class="godpic">
       <div class="godglow" id="godGlow"></div>
-      <div class="godface" id="godFace">🧧</div>
+
+      <svg class="godsvg" id="godFace" viewBox="0 0 210 200">
+        <defs>
+          <linearGradient id="robeG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F0483A"/><stop offset="55%" stop-color="#C62828"/>
+            <stop offset="100%" stop-color="#8E1414"/>
+          </linearGradient>
+          <linearGradient id="goldG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFF3C4"/><stop offset="45%" stop-color="#F5C24B"/>
+            <stop offset="100%" stop-color="#C8901C"/>
+          </linearGradient>
+          <linearGradient id="skinG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFE0BD"/><stop offset="100%" stop-color="#F0BC8F"/>
+          </linearGradient>
+          <radialGradient id="ingotG" cx="40%" cy="30%">
+            <stop offset="0" stop-color="#FFF9DC"/><stop offset="55%" stop-color="#FFD54F"/>
+            <stop offset="100%" stop-color="#D99A0F"/>
+          </radialGradient>
+          <linearGradient id="hatG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2E1010"/><stop offset="100%" stop-color="#521A16"/>
+          </linearGradient>
+        </defs>
+
+        <!-- 身后光晕 -->
+        <circle cx="105" cy="96" r="76" fill="#FFD54F" opacity=".12"/>
+        <circle cx="105" cy="96" r="60" fill="#FFE082" opacity=".14"/>
+
+        <!-- 身体袍子 -->
+        <path d="M105 96
+                 C 68 96 46 120 40 160
+                 L 36 200 L 174 200 L 170 160
+                 C 164 120 142 96 105 96 Z" fill="url(#robeG)"/>
+        <!-- 袍子暗部 -->
+        <path d="M105 96 C 82 96 62 114 52 146 L 46 200 L 74 200 L 78 140 Z" fill="#9E1B1B" opacity=".35"/>
+        <!-- 金色云纹衣襟 -->
+        <path d="M105 100 L 82 200 L 128 200 Z" fill="#B71C1C"/>
+        <path d="M105 104 L 92 200 L 118 200 Z" fill="url(#goldG)" opacity=".85"/>
+        <g stroke="#8A1B0C" stroke-width="1.2" fill="none" opacity=".5">
+          <path d="M99 130c4-3 8-3 11 0"/><path d="M97 152c5-3 11-3 15 0"/>
+          <path d="M95 174c6-3 13-3 19 0"/>
+        </g>
+        <!-- 腰带 -->
+        <rect x="70" y="150" width="70" height="13" rx="3" fill="url(#goldG)"/>
+        <rect x="95" y="147" width="20" height="19" rx="3" fill="#C8901C"/>
+        <circle cx="105" cy="156" r="5" fill="#FFF3C4"/>
+
+        <!-- 左右袖 -->
+        <path d="M50 122 C 34 134 28 156 32 176 L 62 172 C 58 152 60 136 66 126 Z" fill="url(#robeG)"/>
+        <path d="M160 122 C 176 134 182 156 178 176 L 148 172 C 152 152 150 136 144 126 Z" fill="url(#robeG)"/>
+        <path d="M32 176 L 62 172 L 60 184 L 34 188 Z" fill="url(#goldG)" opacity=".8"/>
+        <path d="M178 176 L 148 172 L 150 184 L 176 188 Z" fill="url(#goldG)" opacity=".8"/>
+
+        <!-- 元宝 -->
+        <g id="godIngot">
+          <ellipse cx="105" cy="156" rx="30" ry="15" fill="url(#ingotG)"/>
+          <path d="M75 156 C 75 143 86 136 105 136 C 124 136 135 143 135 156 Z" fill="url(#ingotG)"/>
+          <ellipse cx="105" cy="140" rx="14" ry="6" fill="#FFF9DC" opacity=".75"/>
+          <ellipse cx="94" cy="151" rx="7" ry="3.5" fill="#FFF9DC" opacity=".55"/>
+        </g>
+        <!-- 双手 -->
+        <ellipse cx="78" cy="160" rx="12" ry="9" fill="url(#skinG)" transform="rotate(-18 78 160)"/>
+        <ellipse cx="132" cy="160" rx="12" ry="9" fill="url(#skinG)" transform="rotate(18 132 160)"/>
+
+        <!-- 脖子 -->
+        <rect x="95" y="80" width="20" height="18" rx="7" fill="#F0BC8F"/>
+        <!-- 脸 -->
+        <ellipse cx="105" cy="62" rx="33" ry="31" fill="url(#skinG)"/>
+        <!-- 耳朵 -->
+        <ellipse cx="73" cy="63" rx="6" ry="9" fill="#F0BC8F"/>
+        <ellipse cx="137" cy="63" rx="6" ry="9" fill="#F0BC8F"/>
+        <!-- 腮红 -->
+        <ellipse cx="85" cy="70" rx="9" ry="6" fill="#E57373" opacity=".42"/>
+        <ellipse cx="125" cy="70" rx="9" ry="6" fill="#E57373" opacity=".42"/>
+        <!-- 笑眼 -->
+        <g id="godEyes" stroke="#4E342E" stroke-width="2.6" fill="none" stroke-linecap="round">
+          <path d="M83 58 q 7 -7 14 0"/>
+          <path d="M113 58 q 7 -7 14 0"/>
+        </g>
+        <!-- 眉毛 -->
+        <g stroke="#3E2723" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".85">
+          <path d="M80 47 q 9 -6 18 -1"/>
+          <path d="M112 46 q 9 -5 18 1"/>
+        </g>
+        <!-- 笑嘴 -->
+        <path id="godMouth" d="M92 74 q 13 13 26 0 q -13 5 -26 0 Z" fill="#8E2A2A"/>
+        <path d="M95 75 q 10 4 20 0" stroke="#FFF" stroke-width="2.5" fill="none" opacity=".9"/>
+        <!-- 胡子 -->
+        <path d="M88 82 q 17 20 34 0 q -3 26 -17 30 q -14 -4 -17 -30 Z" fill="#3E2723" opacity=".9"/>
+        <path d="M94 86 q 11 11 22 0 q -2 18 -11 21 q -9 -3 -11 -21 Z" fill="#5D4037" opacity=".55"/>
+        <!-- 八字须 -->
+        <path d="M88 71 q -10 2 -13 9 q 9 -4 14 -4" fill="#3E2723"/>
+        <path d="M122 71 q 10 2 13 9 q -9 -4 -14 -4" fill="#3E2723"/>
+
+        <!-- 官帽 -->
+        <path d="M70 40 q 35 -22 70 0 l 3 -12 q -38 -22 -76 0 Z" fill="url(#hatG)"/>
+        <rect x="66" y="26" width="78" height="14" rx="4" fill="url(#hatG)"/>
+        <rect x="66" y="26" width="78" height="5" rx="2.5" fill="url(#goldG)"/>
+        <!-- 帽正宝石 -->
+        <circle cx="105" cy="22" r="8" fill="url(#goldG)"/>
+        <circle cx="105" cy="22" r="4.5" fill="#E53935"/>
+        <circle cx="103" cy="20" r="1.6" fill="#FFCDD2" opacity=".9"/>
+        <!-- 两侧帽翅 -->
+        <g fill="url(#hatG)">
+          <path d="M66 30 q -28 -3 -34 6 q 34 4 34 4 Z"/>
+          <path d="M144 30 q 28 -3 34 6 q -34 4 -34 4 Z"/>
+        </g>
+        <g fill="url(#goldG)" opacity=".85">
+          <circle cx="40" cy="34" r="3.5"/><circle cx="170" cy="34" r="3.5"/>
+        </g>
+      </svg>
+
+      <div class="sparkle" id="sparkBox"></div>
       <div class="ingots" id="ingotBox"></div>
     </div>
+
+    <div class="godbanner"><span>八方来财聚我家　偏财正财一起发</span></div>
+
     <div class="godaltar">
+      <svg class="altarsvg" viewBox="0 0 280 110" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="tblG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#A97142"/><stop offset="30%" stop-color="#7A4526"/>
+            <stop offset="100%" stop-color="#4A2615"/>
+          </linearGradient>
+          <linearGradient id="lionG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFF3C4"/><stop offset="45%" stop-color="#F0B429"/>
+            <stop offset="100%" stop-color="#A86D0A"/>
+          </linearGradient>
+          <linearGradient id="skirtG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8E1414"/><stop offset="100%" stop-color="#5D0D0D"/>
+          </linearGradient>
+        </defs>
+
+        <!-- 桌面 -->
+        <rect x="10" y="62" width="260" height="14" rx="3" fill="url(#tblG)"/>
+        <rect x="10" y="62" width="260" height="4.5" rx="2" fill="#C89A5B" opacity=".85"/>
+        <!-- 桌裙 -->
+        <rect x="20" y="76" width="240" height="34" fill="url(#skirtG)"/>
+        <g stroke="#F0B429" stroke-width="1.5" fill="none" opacity=".7">
+          <rect x="30" y="82" width="220" height="22" rx="2"/>
+          <path d="M131 93 q 9 -8 18 0 q -9 8 -18 0"/>
+          <path d="M62 93 q 6 -6 12 0 q -6 6 -12 0"/>
+          <path d="M206 93 q 6 -6 12 0 q -6 6 -12 0"/>
+          <circle cx="96" cy="93" r="3.5"/><circle cx="184" cy="93" r="3.5"/>
+        </g>
+
+        <!-- 左狮 -->
+        <g transform="translate(34,18)">
+          <ellipse cx="17" cy="44" rx="19" ry="5" fill="#000" opacity=".28"/>
+          <path d="M4 44 q -2 -18 13 -18 q 15 0 13 18 Z" fill="url(#lionG)"/>
+          <path d="M8 44 q -1 -13 9 -13 q 10 0 9 13 Z" fill="#FFF3C4" opacity=".3"/>
+          <circle cx="17" cy="16" r="13" fill="url(#lionG)"/>
+          <circle cx="17" cy="16" r="9" fill="#FFF3C4" opacity=".35"/>
+          <g fill="url(#lionG)">
+            <circle cx="5" cy="9" r="4.5"/><circle cx="29" cy="9" r="4.5"/>
+            <circle cx="3" cy="19" r="4"/><circle cx="31" cy="19" r="4"/>
+          </g>
+          <circle cx="12.5" cy="14" r="2" fill="#5D3010"/><circle cx="21.5" cy="14" r="2" fill="#5D3010"/>
+          <circle cx="12" cy="13.3" r=".7" fill="#FFF" opacity=".9"/><circle cx="21" cy="13.3" r=".7" fill="#FFF" opacity=".9"/>
+          <path d="M12 21 q 5 4 10 0" stroke="#7A4A14" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="17" cy="19" rx="2.5" ry="1.8" fill="#7A4A14"/>
+          <circle cx="17" cy="33" r="5" fill="#F0B429"/>
+          <circle cx="17" cy="33" r="3" fill="#FFF3C4" opacity=".6"/>
+        </g>
+
+        <!-- 右狮 -->
+        <g transform="translate(212,18)">
+          <ellipse cx="17" cy="44" rx="19" ry="5" fill="#000" opacity=".28"/>
+          <path d="M4 44 q -2 -18 13 -18 q 15 0 13 18 Z" fill="url(#lionG)"/>
+          <path d="M8 44 q -1 -13 9 -13 q 10 0 9 13 Z" fill="#FFF3C4" opacity=".3"/>
+          <circle cx="17" cy="16" r="13" fill="url(#lionG)"/>
+          <circle cx="17" cy="16" r="9" fill="#FFF3C4" opacity=".35"/>
+          <g fill="url(#lionG)">
+            <circle cx="5" cy="9" r="4.5"/><circle cx="29" cy="9" r="4.5"/>
+            <circle cx="3" cy="19" r="4"/><circle cx="31" cy="19" r="4"/>
+          </g>
+          <circle cx="12.5" cy="14" r="2" fill="#5D3010"/><circle cx="21.5" cy="14" r="2" fill="#5D3010"/>
+          <circle cx="12" cy="13.3" r=".7" fill="#FFF" opacity=".9"/><circle cx="21" cy="13.3" r=".7" fill="#FFF" opacity=".9"/>
+          <path d="M12 21 q 5 4 10 0" stroke="#7A4A14" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="17" cy="19" rx="2.5" ry="1.8" fill="#7A4A14"/>
+          <circle cx="17" cy="33" r="5" fill="#F0B429"/>
+          <circle cx="17" cy="33" r="3" fill="#FFF3C4" opacity=".6"/>
+        </g>
+      </svg>
+
       <div class="censer">
         <div class="smoke" id="smoke"><div class="smk"></div><div class="smk"></div><div class="smk"></div></div>
         <div class="sticks" id="sticks"><div class="stick"></div><div class="stick"></div><div class="stick"></div></div>
-        <div class="censerbody"></div>
+        <svg width="86" height="52" viewBox="0 0 86 52">
+          <defs>
+            <linearGradient id="cnsG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#C89A5B"/><stop offset="45%" stop-color="#8D6031"/>
+              <stop offset="100%" stop-color="#4E2F16"/>
+            </linearGradient>
+          </defs>
+          <rect x="6" y="6" width="74" height="7" rx="3.5" fill="#B08040"/>
+          <path d="M11 13 h64 l-5 26 q-27 6 -54 0 Z" fill="url(#cnsG)"/>
+          <g stroke="#F0B429" stroke-width="1.3" fill="none" opacity=".65">
+            <path d="M18 22 q 8 -5 16 0"/><path d="M52 22 q 8 -5 16 0"/>
+            <circle cx="43" cy="26" r="4"/>
+          </g>
+          <path d="M16 39 q 27 6 54 0 l -3 8 q -24 5 -48 0 Z" fill="#3E2011"/>
+          <rect x="14" y="46" width="8" height="6" rx="2" fill="#6B3E24"/>
+          <rect x="64" y="46" width="8" height="6" rx="2" fill="#6B3E24"/>
+        </svg>
       </div>
-      <div class="lion l">🦁</div>
-      <div class="lion r">🦁</div>
-      <div class="godtable"></div>
     </div>
+
     <div class="godtip" id="godTip">点击下方按钮，财神显灵</div>
     <div class="godbtns">
       <button class="godbtn" id="btnWish" onclick="doWish()">许愿</button>
@@ -1700,9 +1964,23 @@ function unduckGodBgm(){
 function openGod(){
   sfx('click');
   document.getElementById('godMask').classList.add('open');
-  // 打开：播放财神殿 BGM + 财神笑动画
+  buildSparkles();
   playGodBgm('laugh',{loop:true});
   setTimeout(()=>godLaugh(),260);
+}
+/* 画像区随机星光 */
+function buildSparkles(){
+  const box=document.getElementById('sparkBox');
+  if(box.childElementCount)return;
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div');
+    s.className='spk';
+    s.style.left=(Math.random()*92+4)+'%';
+    s.style.top=(Math.random()*78+6)+'%';
+    s.style.animationDelay=(Math.random()*2.8)+'s';
+    s.style.animationDuration=(Math.random()*1.6+2.2)+'s';
+    box.appendChild(s);
+  }
 }
 function closeGod(){
   sfx('click');
@@ -1725,11 +2003,26 @@ function resetGod(){
 function godLaugh(){
   const f=document.getElementById('godFace');
   const g=document.getElementById('godGlow');
+  const mouth=document.getElementById('godMouth');
+  const eyes=document.getElementById('godEyes');
   f.classList.remove('laughing');
   void f.offsetWidth;          // 重启动画
   f.classList.add('laughing');
   g.classList.add('on');
-  setTimeout(()=>{f.classList.remove('laughing');g.classList.remove('on')},1500);
+  // 大笑表情：嘴张开、眼睛眯成弯月
+  if(mouth)mouth.setAttribute('d','M88 72 q 17 22 34 0 q -17 9 -34 0 Z');
+  if(eyes){
+    eyes.querySelectorAll('path')[0].setAttribute('d','M81 59 q 8 -10 16 0');
+    eyes.querySelectorAll('path')[1].setAttribute('d','M113 59 q 8 -10 16 0');
+  }
+  setTimeout(()=>{
+    f.classList.remove('laughing');g.classList.remove('on');
+    if(mouth)mouth.setAttribute('d','M92 74 q 13 13 26 0 q -13 5 -26 0 Z');
+    if(eyes){
+      eyes.querySelectorAll('path')[0].setAttribute('d','M83 58 q 7 -7 14 0');
+      eyes.querySelectorAll('path')[1].setAttribute('d','M113 58 q 7 -7 14 0');
+    }
+  },1500);
 }
 
 /* 许愿 */
