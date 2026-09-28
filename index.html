@@ -584,7 +584,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <span class="localtag">本机</span> 只在你自己浏览器里，方便临时试听对比。<br>
       管理员上传新文件后，点右上角 ↻ 按钮即可刷新。<br>
       展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。<br>
-      试听按钮播放中会变成「停止」，再点一次即可中断，长短音效都支持。
+      试听按钮播放中会变成「停止」，再点一次即可中断，长短音效都支持。<br>
+      财神殿 / 充值到账 / 提现的场景 BGM 播放时，大厅主 BGM 会自动淡出静音，场景结束后淡入恢复。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
   </div>
@@ -1285,6 +1286,7 @@ function stopSfx(k){
 function stopAllAudio(){
   Object.keys(POOL).forEach(k=>stopSfx(k));
   stopGodBgm();
+  mainHold=1;releaseMainBgm();          // 强制恢复主 BGM
   renderSlots();
   toast('已停止全部音效');
 }
@@ -1292,9 +1294,14 @@ function stopAllAudio(){
 function tsf(k){
   // 长音频槽位：独立实例播放，再点一次停止
   if(BGMSLOTS.includes(k)){
-    if(SCENE[k]){stopGodBgm(k);renderSlots();toast('已停止');return}
+    if(SCENE[k]){stopGodBgm(k);releaseMainBgm();renderSlots();toast('已停止');return}
+    holdMainBgm();
     const a=playGodBgm(k,{loop:k==='laugh'});
-    if(!a){toast('该槽位还没分配音效');return}
+    if(!a){releaseMainBgm();toast('该槽位还没分配音效');return}
+    if(!a.loop){
+      const prev=a.onended;
+      a.onended=()=>{if(prev)prev();releaseMainBgm()};
+    }
     renderSlots();
     return;
   }
@@ -1524,7 +1531,7 @@ function pb(i){const el=document.getElementById('bi-'+i);if(!el)return;
   if(cur&&cur.i===i){cur.a.pause();document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');cur=null;return}
   if(cur)cur.a.pause();
   document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');
-  const a=new Audio(B[i].url);a.loop=true;a.volume=bVol;a.play();cur={i,a};
+  const a=new Audio(B[i].url);a.loop=true;a.volume=bVol;a.play();cur={i,a,_wasPlaying:false};
   el.classList.add('pg');el.querySelector('.ic').textContent='❚❚'}
 async function rmB(i,e){e.stopPropagation();if(cur&&cur.i===i){cur.a.pause();cur=null}
   if(B[i].id)try{await delA(B[i].id)}catch(x){}
@@ -1984,12 +1991,14 @@ function showRes(type,amt,chan){
     ? chan+' · 资金已实时入账，可立即游戏'
     : chan+' · 预计 5-30 分钟内到账，请留意查收';
   document.getElementById('resMask').classList.add('open');
+  holdMainBgm();
   playGodBgm(dep?'deposit':'withdraw');
   if(dep)rainCoins();
 }
 function closeRes(){
   sfx('click');
   stopGodBgm('deposit');stopGodBgm('withdraw');
+  releaseMainBgm();
   document.getElementById('resMask').classList.remove('open');
   document.getElementById('resCoins').innerHTML='';
 }
@@ -2059,10 +2068,45 @@ function unduckGodBgm(){
   },40);
 }
 
+/* ===== 主 BGM 让位管理 ===== */
+let mainHold=0, mainFadeT=null;
+
+function fadeAudio(a,to,ms,done){
+  if(mainFadeT){clearInterval(mainFadeT);mainFadeT=null}
+  const from=a.volume, steps=Math.max(1,Math.round(ms/40));
+  let n=0;
+  mainFadeT=setInterval(()=>{
+    n++;
+    a.volume=Math.max(0,Math.min(1,from+(to-from)*n/steps));
+    if(n>=steps){clearInterval(mainFadeT);mainFadeT=null;if(done)done()}
+  },40);
+}
+/* 场景 BGM 开始 → 主 BGM 淡出静音 */
+function holdMainBgm(){
+  mainHold++;
+  if(mainHold>1)return;                 // 已经静音则不重复
+  if(cur&&!cur.a.paused){
+    cur._wasPlaying=true;
+    fadeAudio(cur.a,0,320,()=>{if(cur)cur.a.pause()});
+  }
+}
+/* 场景 BGM 结束 → 主 BGM 淡入恢复 */
+function releaseMainBgm(){
+  mainHold=Math.max(0,mainHold-1);
+  if(mainHold>0)return;                 // 还有其他场景在播则不恢复
+  if(cur&&cur._wasPlaying){
+    cur._wasPlaying=false;
+    cur.a.volume=0;
+    cur.a.play().catch(()=>{});
+    fadeAudio(cur.a,bVol,520);
+  }
+}
+
 function openGod(){
   sfx('click');
   document.getElementById('godMask').classList.add('open');
   buildSparkles();
+  holdMainBgm();
   playGodBgm('laugh',{loop:true});
   setTimeout(()=>godLaugh(),260);
 }
@@ -2083,6 +2127,7 @@ function buildSparkles(){
 function closeGod(){
   sfx('click');
   stopGodBgm();
+  releaseMainBgm();
   document.getElementById('godMask').classList.remove('open');
   resetGod();
 }
