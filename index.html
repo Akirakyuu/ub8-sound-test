@@ -70,6 +70,11 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .svrst:hover{border-color:#1E88E5;color:#1E88E5}
 .vtag{font-size:8.5px;color:#C2410C;background:#ffedd5;padding:1px 5px;border-radius:3px;
  flex-shrink:0;font-weight:600}
+.pl.stp{background:#fee2e2;color:#dc2626}
+.pl.stp:hover{background:#fecaca}
+.stopall{width:100%;margin-top:9px;padding:8px;background:#f8fafc;border:1px solid #e0e6eb;
+ color:#64748b;border-radius:5px;font-size:11.5px;cursor:pointer}
+.stopall:hover{border-color:#dc2626;color:#dc2626;background:#fef2f2}
 .cnt{font-size:9px;color:#1E88E5;background:#e3f2fd;padding:2px 6px;border-radius:9px;flex-shrink:0;font-weight:600}
 .addbtn{display:block;margin:6px 4px 3px;padding:8px;text-align:center;border:1.5px dashed #cbd5e1;border-radius:5px;cursor:pointer;font-size:11px;color:#64748b;background:#fafcfe}
 .addbtn:hover{border-color:#1E88E5;color:#1E88E5;background:#f0f7ff}
@@ -558,6 +563,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
   <div class="ps">
     <h3>交互音效</h3>
     <div id="slotRows"></div>
+    <button class="stopall" onclick="stopAllAudio()">■ 停止全部音效</button>
     <div class="vr"><label>总音量</label><input type="range" min="0" max="100" value="70" oninput="ssv(this.value)"><span class="vv" id="sv">70%</span></div>
   </div>
   <div class="ps" style="border:none">
@@ -577,7 +583,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       <span class="cloudtag">云端</span> 所有人可听，把音频丢进仓库对应文件夹即可，无需其他操作。<br>
       <span class="localtag">本机</span> 只在你自己浏览器里，方便临时试听对比。<br>
       管理员上传新文件后，点右上角 ↻ 按钮即可刷新。<br>
-      展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。
+      展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。<br>
+      试听按钮播放中会变成「停止」，再点一次即可中断，长短音效都支持。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
   </div>
@@ -1264,6 +1271,24 @@ function sfx(k){
   try{a.currentTime=0}catch(e){}
   a.play().catch(()=>{});
 }
+/* 正在试听的短音效槽位 */
+const PREV={};
+
+/* 停止某槽位所有正在响的实例 */
+function stopSfx(k){
+  if(POOL[k])POOL[k].arr.forEach(a=>{
+    try{a.pause();a.currentTime=0}catch(e){}
+  });
+  if(PREV[k]){clearTimeout(PREV[k]);delete PREV[k]}
+}
+/* 停止全部（短音效 + 长音频）*/
+function stopAllAudio(){
+  Object.keys(POOL).forEach(k=>stopSfx(k));
+  stopGodBgm();
+  renderSlots();
+  toast('已停止全部音效');
+}
+
 function tsf(k){
   // 长音频槽位：独立实例播放，再点一次停止
   if(BGMSLOTS.includes(k)){
@@ -1274,14 +1299,35 @@ function tsf(k){
     return;
   }
   if(!POOL[k]){toast('该槽位还没分配音效');return}
-  sfx(k);
+  // 短音效：正在响则停止，否则播放
+  if(PREV[k]){stopSfx(k);renderSlots();toast('已停止');return}
+  const p=POOL[k];
+  const a=p.arr[p.idx];
+  p.idx=(p.idx+1)%POOL_SIZE;
+  a.volume=slotVol(k);
+  try{a.currentTime=0}catch(e){}
+  a.play().catch(()=>{});
+  // 按时长自动复位按钮状态
+  const dur=(isFinite(a.duration)&&a.duration>0)?a.duration*1000:1200;
+  PREV[k]=setTimeout(()=>{delete PREV[k];renderSlots()},dur+80);
+  renderSlots();
 }
 
 /* 试听某槽位下的某个文件 */
+let prevAudio=null,prevKey=null;
 function prevOne(k,i,e){
   if(e)e.stopPropagation();
   const it=BANK[k][i];if(!it)return;
-  const a=new Audio(it.url);a.volume=slotVol(k);a.play().catch(()=>{});
+  const key=k+'_'+i;
+  // 同一条再点 → 停止
+  if(prevAudio&&prevKey===key){
+    prevAudio.pause();prevAudio=null;prevKey=null;renderSlots();return;
+  }
+  if(prevAudio){prevAudio.pause();prevAudio=null}
+  const a=new Audio(it.url);a.volume=slotVol(k);
+  a.onended=()=>{if(prevAudio===a){prevAudio=null;prevKey=null;renderSlots()}};
+  a.play().catch(()=>{});
+  prevAudio=a;prevKey=key;renderSlots();
 }
 
 /* 当前展开的槽位 */
@@ -1300,7 +1346,8 @@ function renderSlots(){
       const items=list.length
         ? list.map((it,i)=>
             '<div class="sopt'+(ASSIGN[s.k]===it.id?' cursel':'')+'">'+
-            '<span class="sply" onclick="prevOne(\''+s.k+'\','+i+',event)">▶</span>'+
+            '<span class="sply" onclick="prevOne(\''+s.k+'\','+i+',event)">'+
+              (prevKey===(s.k+'_'+i)?'❚❚':'▶')+'</span>'+
             '<span class="sn" onclick="pickOne(\''+s.k+'\',\''+it.id+'\')">'+it.name+'</span>'+
             (it.cloud?'<span class="cloudtag">云端</span>':'<span class="localtag">本机</span>')+
             (it.cloud?'':'<span class="sdel" onclick="rmOne(\''+s.k+'\','+i+',event)">×</span>')+
@@ -1327,7 +1374,11 @@ function renderSlots(){
         (list.length>1?'<span class="cnt">'+list.length+'</span>':'')+
         (GAIN[s.k]!==undefined&&Math.abs(GAIN[s.k]-1)>.001
           ?'<span class="vtag">'+Math.round(GAIN[s.k]*100)+'%</span>':'')+
-        '<button class="pl" onclick="tsf(\''+s.k+'\');event.stopPropagation()">试听</button>'+
+        (function(){
+          const on=BGMSLOTS.includes(s.k)?!!SCENE[s.k]:!!PREV[s.k];
+          return '<button class="pl'+(on?' stp':'')+'" onclick="tsf(\''+s.k+'\');event.stopPropagation()">'+
+                 (on?'■ 停止':'试听')+'</button>';
+        })()+
         '<span class="slotar">'+(isOpen?'▲':'▼')+'</span>'+
       '</div>'+body+'</div>';
   }).join('');
@@ -1338,6 +1389,8 @@ function tglSlot(k){sfx('click');openSlot=openSlot===k?null:k;renderSlots()}
 /* 选中该槽位下某个文件 */
 function pickOne(k,id){
   const it=BANK[k].find(x=>x.id===id);if(!it)return;
+  stopSfx(k);
+  if(prevAudio){prevAudio.pause();prevAudio=null;prevKey=null}
   ASSIGN[k]=id;buildPool(k,it.url);
   saveAssign();renderSlots();
   toast(SLOTS.find(s=>s.k===k).n+' → '+it.name);
@@ -1477,6 +1530,8 @@ async function rmB(i,e){e.stopPropagation();if(cur&&cur.i===i){cur.a.pause();cur
   if(B[i].id)try{await delA(B[i].id)}catch(x){}
   B.splice(i,1);renderB();toast('已删除')}
 async function clrAll(){if(!confirm('清空本机临时添加的音频？（云端文件不受影响）'))return;
+  Object.keys(PREV).forEach(k=>{clearTimeout(PREV[k]);delete PREV[k]});
+  if(prevAudio){prevAudio.pause();prevAudio=null;prevKey=null}
   if(cur){cur.a.pause();cur=null}try{await clrA()}catch(x){}
   B.length=0;
   Object.keys(BANK).forEach(k=>BANK[k].length=0);
