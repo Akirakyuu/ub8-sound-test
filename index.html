@@ -1288,16 +1288,67 @@ const SLOTS=[
 const BGMSLOTS=['laugh','ingot','deposit','withdraw'];
 
 function slotVol(k){return Math.min(1,sVol*(GAIN[k]===undefined?1:GAIN[k]))}
+
+/* ===== Web Audio：零延迟播放短音效 ===== */
+let AC=null;                       // AudioContext
+const BUF={};                      // 已解码的音频数据 {slot: AudioBuffer}
+const LIVE={};                     // 正在播放的音源 {slot: [sources]}
+
+function getAC(){
+  if(!AC){
+    try{AC=new (window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'})}
+    catch(e){AC=null}
+  }
+  if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});
+  return AC;
+}
+/* 首次交互时唤醒音频上下文（浏览器策略要求）*/
+['pointerdown','keydown','touchstart'].forEach(ev=>
+  document.addEventListener(ev,()=>getAC(),{once:true,capture:true}));
+
+/* 解码音频到内存，播放时零延迟 */
+async function decodeToBuffer(k,url){
+  const ac=getAC();if(!ac)return false;
+  try{
+    const r=await fetch(url);
+    const ab=await r.arrayBuffer();
+    BUF[k]=await ac.decodeAudioData(ab);
+    return true;
+  }catch(e){delete BUF[k];return false}
+}
+
 function buildPool(k,url){
+  // Web Audio 主路径：解码到内存
+  decodeToBuffer(k,url);
+  // HTMLAudio 兜底路径：解码失败或浏览器不支持时使用
   const arr=[];
   for(let i=0;i<POOL_SIZE;i++){
     const a=new Audio(url);
     a.preload='auto';a.volume=slotVol(k);a.load();
     arr.push(a);
   }
-  POOL[k]={arr,idx:0};
+  POOL[k]={arr,idx:0,url};
 }
+
 function sfx(k){
+  const ac=getAC();
+  // 优先走 Web Audio，延迟最低
+  if(ac&&BUF[k]){
+    const src=ac.createBufferSource();
+    src.buffer=BUF[k];
+    const g=ac.createGain();
+    g.gain.value=slotVol(k);
+    src.connect(g).connect(ac.destination);
+    src.start(0);
+    if(!LIVE[k])LIVE[k]=[];
+    LIVE[k].push(src);
+    src.onended=()=>{
+      const a=LIVE[k];if(!a)return;
+      const i=a.indexOf(src);if(i>=0)a.splice(i,1);
+    };
+    return;
+  }
+  // 兜底
   const p=POOL[k];if(!p)return;
   const a=p.arr[p.idx];
   p.idx=(p.idx+1)%POOL_SIZE;
@@ -1305,11 +1356,16 @@ function sfx(k){
   try{a.currentTime=0}catch(e){}
   a.play().catch(()=>{});
 }
+
 /* 正在试听的短音效槽位 */
 const PREV={};
 
 /* 停止某槽位所有正在响的实例 */
 function stopSfx(k){
+  if(LIVE[k]){
+    LIVE[k].forEach(s=>{try{s.stop()}catch(e){}});
+    LIVE[k]=[];
+  }
   if(POOL[k])POOL[k].arr.forEach(a=>{
     try{a.pause();a.currentTime=0}catch(e){}
   });
@@ -1341,14 +1397,14 @@ function tsf(k){
   if(!POOL[k]){toast('该槽位还没分配音效');return}
   // 短音效：正在响则停止，否则播放
   if(PREV[k]){stopSfx(k);renderSlots();toast('已停止');return}
-  const p=POOL[k];
-  const a=p.arr[p.idx];
-  p.idx=(p.idx+1)%POOL_SIZE;
-  a.volume=slotVol(k);
-  try{a.currentTime=0}catch(e){}
-  a.play().catch(()=>{});
+  sfx(k);
   // 按时长自动复位按钮状态
-  const dur=(isFinite(a.duration)&&a.duration>0)?a.duration*1000:1200;
+  let dur=1200;
+  if(BUF[k])dur=BUF[k].duration*1000;
+  else{
+    const a=POOL[k].arr[0];
+    if(isFinite(a.duration)&&a.duration>0)dur=a.duration*1000;
+  }
   PREV[k]=setTimeout(()=>{delete PREV[k];renderSlots()},dur+80);
   renderSlots();
 }
@@ -1429,7 +1485,7 @@ function tglSlot(k){sfx('click');openSlot=openSlot===k?null:k;renderSlots()}
 /* 选中该槽位下某个文件 */
 function pickOne(k,id){
   const it=BANK[k].find(x=>x.id===id);if(!it)return;
-  stopSfx(k);
+  stopSfx(k);delete BUF[k];
   if(prevAudio){prevAudio.pause();prevAudio=null;prevKey=null}
   ASSIGN[k]=id;buildPool(k,it.url);
   saveAssign();renderSlots();
@@ -1460,7 +1516,7 @@ async function ldOne(input,k){
 async function rmOne(k,i,e){
   if(e)e.stopPropagation();
   const it=BANK[k][i];if(!it)return;
-  if(ASSIGN[k]===it.id){delete ASSIGN[k];delete POOL[k];saveAssign()}
+  if(ASSIGN[k]===it.id){delete ASSIGN[k];delete POOL[k];delete BUF[k];saveAssign()}
   try{await delA(it.id)}catch(x){}
   BANK[k].splice(i,1);
   renderSlots();toast('已删除：'+it.name);
@@ -1576,6 +1632,8 @@ async function clrAll(){if(!confirm('清空本机临时添加的音频？（云�
   B.length=0;
   Object.keys(BANK).forEach(k=>BANK[k].length=0);
   Object.keys(POOL).forEach(k=>delete POOL[k]);
+  Object.keys(BUF).forEach(k=>delete BUF[k]);
+  Object.keys(LIVE).forEach(k=>delete LIVE[k]);
   Object.keys(ASSIGN).forEach(k=>delete ASSIGN[k]);
   Object.keys(GAIN).forEach(k=>delete GAIN[k]);
   localStorage.removeItem('ub8assign');localStorage.removeItem('ub8gain');
@@ -1907,9 +1965,15 @@ function closeWin(id,now){
   setTimeout(()=>d.remove(),300);
 }
 
+/* 音频提前量：补偿浏览器播放延迟，让声音和弹窗同步 */
+const AUDIO_LEAD=0;
+
 function doBet(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}
   sfx('bet');toast('投注成功，共 '+n+' 注');
-  setTimeout(()=>{sfx('win');winNotice()},2000)}
+  setTimeout(()=>{
+    sfx('win');                                   // 声音先起
+    setTimeout(()=>winNotice(),AUDIO_LEAD);       // 弹窗稍后
+  },2000-AUDIO_LEAD)}
 function addCart(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}sfx('bet');toast('已添加至购彩篮')}
 let sec=58;setInterval(()=>{sec--;if(sec<0)sec=59;document.getElementById('tmr').textContent='00:00:'+String(sec).padStart(2,'0')},1000);
 
