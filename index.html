@@ -538,6 +538,36 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .i1{background:#EC407A}.i2{background:#26A69A}.i3{background:#66BB6A}
 .i4{background:#26C6DA}.i5{background:#26A69A}.i6{background:#29B6F6}
 .i7{background:#42A5F5}.i8{background:#26A69A}
+/* ===== 中奖通知卡片（登录按钮左侧）===== */
+.wnwrap{position:fixed;top:11px;right:146px;z-index:1180;display:flex;flex-direction:column;
+ gap:6px;pointer-events:none;width:270px}
+.wncard{background:#fff;border-radius:5px;box-shadow:0 3px 14px rgba(0,0,0,.14);
+ overflow:hidden;pointer-events:auto;animation:wnin .3s cubic-bezier(.2,.9,.3,1.05);
+ border:1px solid #e8eef5}
+.wncard.out{animation:wnout .26s ease forwards}
+@keyframes wnin{0%{opacity:0;transform:translateX(18px)}
+ 100%{opacity:1;transform:translateX(0)}}
+@keyframes wnout{0%{opacity:1;transform:translateX(0);max-height:60px}
+ 100%{opacity:0;transform:translateX(18px);max-height:0;margin-top:-6px}}
+.wnhd{background:#f5f8fb;padding:4px 9px;font-size:10px;color:#607d8b;font-weight:600;
+ border-bottom:1px solid #eef2f7;display:flex;align-items:center;justify-content:space-between;
+ line-height:1.3}
+.wnx{background:none;border:none;color:#b0bec5;font-size:13px;cursor:pointer;line-height:1;padding:0 1px}
+.wnx:hover{color:#78909c}
+.wnbd{display:flex;gap:7px;padding:6px 9px 7px;align-items:center}
+.wnic{width:20px;height:20px;border-radius:50%;flex-shrink:0;
+ background:linear-gradient(135deg,#FF7043,#E53935);color:#fff;font-size:10px;
+ display:flex;align-items:center;justify-content:center;
+ box-shadow:0 1px 5px rgba(229,57,53,.32);animation:wnbell .6s ease}
+@keyframes wnbell{0%,100%{transform:rotate(0)}
+ 20%{transform:rotate(-14deg)}40%{transform:rotate(11deg)}
+ 60%{transform:rotate(-7deg)}80%{transform:rotate(4deg)}}
+.wntx{font-size:11.5px;color:#37474f;line-height:1.4;white-space:nowrap}
+.wnbar{height:2px;background:#eceff1;position:relative;overflow:hidden}
+.wnbar i{position:absolute;inset:0;background:linear-gradient(90deg,#FF7043,#E53935);
+ transform-origin:left;animation:wnprog linear forwards}
+@keyframes wnprog{0%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+
 .tst{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(30,41,59,.94);color:#fff;padding:11px 22px;border-radius:6px;font-size:12.5px;z-index:2000;opacity:0;pointer-events:none;transition:all .22s}
 .tst.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -585,6 +615,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       管理员上传新文件后，点右上角 ↻ 按钮即可刷新。<br>
       展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。<br>
       试听按钮播放中会变成「停止」，再点一次即可中断，长短音效都支持。<br>
+
       财神殿 / 充值到账 / 提现的场景 BGM 播放时，大厅主 BGM 会自动淡出静音，场景结束后淡入恢复。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
@@ -1093,6 +1124,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
   <div class="bni" id="bn-vip" onclick="go('vip')"><div class="bnc i5">♛</div><div class="l">VIP</div></div>
   <div class="bni" id="bn-service" onclick="go('service')"><div class="bnc i6">☎</div><div class="l">客服</div></div>
 </div>
+
+<div class="wnwrap" id="wnWrap"></div>
 
 <div class="tst" id="tst"></div>
 
@@ -1845,9 +1878,38 @@ function upd(){let p=1,any=false;
   const bets=any?p:0,m=+document.getElementById('mtv').value||1;
   document.getElementById('sc').textContent=bets;document.getElementById('ta').textContent=(bets*2*m).toFixed(2)}
 function cmt(d){sfx('select');const i=document.getElementById('mtv');i.value=Math.max(1,+i.value+d);upd()}
+/* ===== 中奖通知卡片 ===== */
+let wnSeq=0;
+function winNotice(){
+  const wrap=document.getElementById('wnWrap');
+  const id='wn'+(++wnSeq);
+  const dur=5000;
+  const d=document.createElement('div');
+  d.className='wncard';d.id=id;
+  d.innerHTML=
+    '<div class="wnhd"><span>中奖提醒</span>'+
+      '<button class="wnx" onclick="closeWin(\''+id+'\')">×</button></div>'+
+    '<div class="wnbd">'+
+      '<div class="wnic">🔔</div>'+
+      '<div class="wntx">恭喜您已中奖</div>'+
+    '</div>'+
+    '<div class="wnbar"><i style="animation-duration:'+dur+'ms"></i></div>';
+  wrap.appendChild(d);
+  while(wrap.children.length>4)closeWin(wrap.firstElementChild.id,true);
+  d._tm=setTimeout(()=>closeWin(id),dur);
+  return id;
+}
+function closeWin(id,now){
+  const d=document.getElementById(id);if(!d)return;
+  if(d._tm){clearTimeout(d._tm);d._tm=null}
+  if(now){d.remove();return}
+  d.classList.add('out');
+  setTimeout(()=>d.remove(),300);
+}
+
 function doBet(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}
   sfx('bet');toast('投注成功，共 '+n+' 注');
-  setTimeout(()=>{sfx('win');toast('恭喜中奖！')},1300)}
+  setTimeout(()=>{sfx('win');winNotice()},2000)}
 function addCart(){const n=+document.getElementById('sc').textContent;if(!n){toast('请先选择号码');return}sfx('bet');toast('已添加至购彩篮')}
 let sec=58;setInterval(()=>{sec--;if(sec<0)sec=59;document.getElementById('tmr').textContent='00:00:'+String(sec).padStart(2,'0')},1000);
 
