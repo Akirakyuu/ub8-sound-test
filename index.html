@@ -32,6 +32,22 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
 .bi .ic{color:#1E88E5;font-size:12.5px}
 .bi .dl{color:#cbd5e1;font-size:15px;padding:0 3px}
 .bi .dl:hover{color:#ef4444}
+/* BGM 进度条 */
+.bprog{padding:7px 10px 9px;background:#f0f7ff;border-top:1px solid #dbeafe}
+.bseek{position:relative;height:16px;display:flex;align-items:center;cursor:pointer}
+.bseek .trk{position:absolute;left:0;right:0;height:4px;background:#cfe3f7;border-radius:2px}
+.bseek .fil{position:absolute;left:0;height:4px;background:#1E88E5;border-radius:2px;width:0}
+.bseek .knb{position:absolute;width:11px;height:11px;border-radius:50%;background:#1E88E5;
+ border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);left:0;margin-left:-5.5px;
+ opacity:0;transition:opacity .15s}
+.bseek:hover .knb,.bseek.drag .knb{opacity:1}
+.btime{display:flex;justify-content:space-between;font-size:9.5px;color:#78909c;
+ margin-top:4px;font-variant-numeric:tabular-nums}
+.bctl{display:flex;align-items:center;gap:6px;margin-top:5px;justify-content:center}
+.bctl button{background:#fff;border:1px solid #cfe3f7;border-radius:4px;color:#1565C0;
+ font-size:10px;padding:3px 8px;cursor:pointer;line-height:1.4}
+.bctl button:hover{border-color:#1E88E5;background:#e3f2fd}
+.bloop{color:#16a34a !important;border-color:#bbf7d0 !important;background:#f0fdf4 !important}
 .vr{display:flex;align-items:center;gap:9px;margin-top:11px}
 .vr label{font-size:11px;color:#64748b;min-width:40px}
 .vr input[type=range]{flex:1;accent-color:#1E88E5}
@@ -616,7 +632,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;backgr
       展开任一槽位可单独调节该音效音量（0-150%），与底部总音量相乘生效。<br>
       试听按钮播放中会变成「停止」，再点一次即可中断，长短音效都支持。<br>
 
-      财神殿 / 充值到账 / 提现的场景 BGM 播放时，大厅主 BGM 会自动淡出静音，场景结束后淡入恢复。
+      财神殿 / 充值到账 / 提现的场景 BGM 播放时，大厅主 BGM 会自动淡出静音，场景结束后从原位置淡入恢复。<br>
+      BGM 播放中会显示进度条，可拖动跳转、前后 10 秒、重播，暂停后续播不会从头开始。
     </p>
     <button class="cb" onclick="clrAll()">清空本机临时文件</button>
   </div>
@@ -1608,27 +1625,134 @@ async function ldBgm(i){const fs=[...i.files];if(!fs.length)return;
   for(const f of fs){const id='b_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
     B.push({id,name:f.name,url:URL.createObjectURL(f)});try{await put(id,f.name,f,'b')}catch(x){}}
   renderB();toast('已保存 '+fs.length+' 首')}
+function fmtT(s){
+  if(!isFinite(s)||s<0)s=0;
+  const m=Math.floor(s/60),x=Math.floor(s%60);
+  return m+':'+String(x).padStart(2,'0');
+}
 function renderB(){const bx=document.getElementById('bgmList');
   if(!B.length){bx.innerHTML='<div class="et">还没有 BGM</div>';return}
-  bx.innerHTML=B.map((b,i)=>
-    '<div class="bi" id="bi-'+i+'"><span class="ic" onclick="pb('+i+')">▶</span>'+
-    '<span class="nm" onclick="pb('+i+')">'+b.name+'</span>'+
-    (b.cloud?'<span class="cloudtag">云端</span>':'<span class="localtag">本机</span>')+
-    (b.cloud?'':'<span class="dl" onclick="rmB('+i+',event)">×</span>')+
-    '</div>').join('')}
-function pb(i){const el=document.getElementById('bi-'+i);if(!el)return;
-  if(cur&&cur.i===i){cur.a.pause();document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');cur=null;return}
-  if(cur)cur.a.pause();
-  document.querySelectorAll('.bi').forEach(e=>e.classList.remove('pg'));document.querySelectorAll('.bi .ic').forEach(e=>e.textContent='▶');
-  const a=new Audio(B[i].url);a.loop=true;a.volume=bVol;a.play();cur={i,a,_wasPlaying:false};
-  el.classList.add('pg');el.querySelector('.ic').textContent='❚❚'}
-async function rmB(i,e){e.stopPropagation();if(cur&&cur.i===i){cur.a.pause();cur=null}
+  bx.innerHTML=B.map((b,i)=>{
+    const isCur=cur&&cur.i===i;
+    const playing=isCur&&!cur.a.paused;
+    let row='<div class="bi'+(isCur?' pg':'')+'" id="bi-'+i+'">'+
+      '<span class="ic" onclick="pb('+i+')">'+(playing?'❚❚':'▶')+'</span>'+
+      '<span class="nm" onclick="pb('+i+')">'+b.name+'</span>'+
+      (b.cloud?'<span class="cloudtag">云端</span>':'<span class="localtag">本机</span>')+
+      (b.cloud?'':'<span class="dl" onclick="rmB('+i+',event)">×</span>')+
+      '</div>';
+    if(isCur){
+      row+='<div class="bprog">'+
+        '<div class="bseek" id="bseek" onpointerdown="seekDown(event)">'+
+          '<div class="trk"></div><div class="fil" id="bfil"></div><div class="knb" id="bknb"></div>'+
+        '</div>'+
+        '<div class="btime"><span id="btcur">0:00</span><span id="bttot">0:00</span></div>'+
+        '<div class="bctl">'+
+          '<button onclick="seekBy(-10)">« 10s</button>'+
+          '<button onclick="seekTo(0)">↺ 重播</button>'+
+          '<button onclick="seekBy(10)">10s »</button>'+
+          '<button id="bloopBtn" class="'+(cur.a.loop?'bloop':'')+'" onclick="toggleLoop()">'+
+            (cur.a.loop?'循环开':'循环关')+'</button>'+
+        '</div></div>';
+    }
+    return row;
+  }).join('');
+  updProg();
+}
+let progTimer=null;
+
+function pb(i){
+  // 同一首：暂停 / 续播，不重建实例
+  if(cur&&cur.i===i){
+    if(cur.a.paused){cur.a.play().catch(()=>{});startProg()}
+    else{cur.a.pause();stopProg()}
+    renderB();return;
+  }
+  // 换曲：销毁旧的，建新的
+  if(cur){cur.a.pause();cur.a.src='';}
+  const a=new Audio(B[i].url);
+  a.loop=true;a.volume=bVol;a.preload='auto';
+  a.addEventListener('loadedmetadata',()=>{renderB()});
+  a.addEventListener('ended',()=>{if(!a.loop){stopProg();renderB()}});
+  a.play().catch(()=>{});
+  cur={i,a,_wasPlaying:false};
+  startProg();renderB();
+}
+
+/* 进度刷新 */
+function startProg(){
+  stopProg();
+  progTimer=setInterval(updProg,200);
+}
+function stopProg(){
+  if(progTimer){clearInterval(progTimer);progTimer=null}
+}
+function updProg(){
+  if(!cur)return;
+  const fil=document.getElementById('bfil');
+  if(!fil)return;
+  const a=cur.a;
+  const d=isFinite(a.duration)&&a.duration>0?a.duration:0;
+  const pct=d?(a.currentTime/d*100):0;
+  fil.style.width=pct+'%';
+  const knb=document.getElementById('bknb');
+  if(knb)knb.style.left=pct+'%';
+  const tc=document.getElementById('btcur');
+  const tt=document.getElementById('bttot');
+  if(tc)tc.textContent=fmtT(a.currentTime);
+  if(tt)tt.textContent=fmtT(d);
+}
+
+/* 拖动跳转 */
+let seeking=false;
+function seekDown(e){
+  if(!cur)return;
+  const bar=document.getElementById('bseek');
+  if(!bar)return;
+  seeking=true;bar.classList.add('drag');
+  bar.setPointerCapture&&bar.setPointerCapture(e.pointerId);
+  applySeek(e);
+  const mv=ev=>{if(seeking)applySeek(ev)};
+  const up=ev=>{
+    seeking=false;bar.classList.remove('drag');
+    document.removeEventListener('pointermove',mv);
+    document.removeEventListener('pointerup',up);
+  };
+  document.addEventListener('pointermove',mv);
+  document.addEventListener('pointerup',up);
+}
+function applySeek(e){
+  if(!cur)return;
+  const bar=document.getElementById('bseek');
+  if(!bar)return;
+  const r=bar.getBoundingClientRect();
+  let p=(e.clientX-r.left)/r.width;
+  p=Math.max(0,Math.min(1,p));
+  const d=cur.a.duration;
+  if(isFinite(d)&&d>0){cur.a.currentTime=p*d;updProg()}
+}
+function seekTo(t){if(!cur)return;cur.a.currentTime=Math.max(0,t);updProg()}
+function seekBy(s){
+  if(!cur)return;
+  const d=cur.a.duration;
+  let t=cur.a.currentTime+s;
+  if(isFinite(d))t=Math.min(d-0.1,t);
+  cur.a.currentTime=Math.max(0,t);updProg();
+}
+function toggleLoop(){
+  if(!cur)return;
+  cur.a.loop=!cur.a.loop;
+  renderB();
+  toast(cur.a.loop?'已开启循环':'已关闭循环');
+}
+async function rmB(i,e){e.stopPropagation();
+  if(cur&&cur.i===i){cur.a.pause();cur.a.src='';cur=null;stopProg()}
   if(B[i].id)try{await delA(B[i].id)}catch(x){}
   B.splice(i,1);renderB();toast('已删除')}
 async function clrAll(){if(!confirm('清空本机临时添加的音频？（云端文件不受影响）'))return;
   Object.keys(PREV).forEach(k=>{clearTimeout(PREV[k]);delete PREV[k]});
   if(prevAudio){prevAudio.pause();prevAudio=null;prevKey=null}
-  if(cur){cur.a.pause();cur=null}try{await clrA()}catch(x){}
+  if(cur){cur.a.pause();cur.a.src='';cur=null;stopProg()}try{await clrA()}catch(x){}
   B.length=0;
   Object.keys(BANK).forEach(k=>BANK[k].length=0);
   Object.keys(POOL).forEach(k=>delete POOL[k]);
@@ -2213,7 +2337,7 @@ function holdMainBgm(){
   if(mainHold>1)return;                 // 已经静音则不重复
   if(cur&&!cur.a.paused){
     cur._wasPlaying=true;
-    fadeAudio(cur.a,0,320,()=>{if(cur)cur.a.pause()});
+    fadeAudio(cur.a,0,320,()=>{if(cur){cur.a.pause();stopProg();renderB()}});
   }
 }
 /* 场景 BGM 结束 → 主 BGM 淡入恢复 */
@@ -2225,6 +2349,7 @@ function releaseMainBgm(){
     cur.a.volume=0;
     cur.a.play().catch(()=>{});
     fadeAudio(cur.a,bVol,520);
+    startProg();renderB();
   }
 }
 
